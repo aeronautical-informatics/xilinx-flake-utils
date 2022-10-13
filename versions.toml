@@ -1,0 +1,21 @@
+["2019.2_1106_2127"]
+sha256 = "15hfkb51axczqmkjfmknwwmn8v36ss39wdaay14ajnwlnb7q2rxh"
+editions = ["Vivado HL WebPACK", "Vivado HL Design Edition", "Vivado HL System Edition"] 
+products."Zynq UltraScale+ MPSoC" = true
+products."DocNav" = true
+products."Virtex UltraScale+ HBM" = true
+products."Virtex UltraScale+ 58G" = true
+products."Virtex UltraScale+ 58G ES" = false
+products."Virtex UltraScale+" = true
+products."Zynq-7000" = true
+products."Kintex UltraScale+" = true
+products."Engineering Sample Devices" = false
+products."Model Composer" = false
+products."Kintex UltraScale" = true
+products."System Generator for DSP" = true
+products."Virtex UltraScale" = true
+products."Zynq UltraScale+ RFSoC" = true
+products."Versal AI Core Series ES1" = false
+products."Versal Prime Series ES1" = false
+products."Virtex UltraScale+ HBM ES" = false
+products."Zynq UltraScale+ RFSoC ES" = false
