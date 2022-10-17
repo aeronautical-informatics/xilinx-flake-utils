@@ -1,4 +1,4 @@
-["2019.2_1106_2127"]
+["Vivado_2019.2_1106_2127"]
 sha256 = "15hfkb51axczqmkjfmknwwmn8v36ss39wdaay14ajnwlnb7q2rxh"
 editions = ["Vivado HL WebPACK", "Vivado HL Design Edition", "Vivado HL System Edition"] 
 products."Zynq UltraScale+ MPSoC" = true
@@ -16,6 +16,29 @@ products."System Generator for DSP" = true
 products."Virtex UltraScale" = true
 products."Zynq UltraScale+ RFSoC" = true
 products."Versal AI Core Series ES1" = false
+products."Versal Prime Series ES1" = false
+products."Virtex UltraScale+ HBM ES" = false
+products."Zynq UltraScale+ RFSoC ES" = false
+
+["Vitis_2019.2_1106_2127"]
+sha256 = "14j6gbl31p3kw0mwgfg797fpmzacmvsvdh0zap93kpy7mvryhj47"
+editions = ["Vitis Unified Software Platform"] 
+products."Zynq UltraScale+ MPSoC" = true
+products."DocNav" = true
+products."Virtex UltraScale+ HBM" = true
+products."Virtex UltraScale+ 58G" = true
+products."Virtex UltraScale+ 58G ES" = false
+products."Virtex UltraScale+" = true
+products."Zynq-7000" = true
+products."Kintex UltraScale+" = true
+products."Model Composer" = false
+products."Install devices for Alveo and Xilinx edge acceleration platforms" = true
+products."Kintex UltraScale" = true
+products."Virtex UltraScale" = true
+products."Engineering Sample Devices for Custom Platforms" = false
+products."Zynq UltraScale+ RFSoC" = true
+products."Versal AI Core Series ES1" = false
+products."System Generator for DSP" = false
 products."Versal Prime Series ES1" = false
 products."Virtex UltraScale+ HBM ES" = false
 products."Zynq UltraScale+ RFSoC ES" = false
