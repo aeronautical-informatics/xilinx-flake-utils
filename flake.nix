@@ -1,10 +1,20 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.devshell.url = "github:numtide/devshell";
+  inputs.fpga-utils.url = "git+ssh://git@gitlab.dlr.de/ft-ssy-aes/XANDAR/xilinx-workspace.git";
+  inputs.fpga-utils.flake = false;
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, ... } @ inputs:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [
+            (self: super: { xilinx = xilinx-packages; })
+            inputs.devshell.overlay
+          ];
+        };
+
         # taken from
         # https://github.com/nix-community/nix-environments
         genFhs = { name ? "xilinx-fhs", runScript ? "bash", profile ? "" }: pkgs.buildFHSUserEnv {
@@ -73,7 +83,7 @@
                 xilinx-fhs xsetup --agree XilinxEULA,3rdPartyEULA,WebTalkTerms \
                   --batch Install --config install_config.txt
                 kill $xvfb_pid
- 
+
                 runHook postInstall
               '';
             };
@@ -94,10 +104,8 @@
             '';
           in
           wrapper;
-        # pkgs.symlinkJoin { name = "${nameLowercase}-${edition}"; paths = [ toolchain-raw fhs ]; };
-      in
-      rec {
-        packages = builtins.listToAttrs
+
+        xilinx-packages = builtins.listToAttrs
           (pkgs.lib.flatten (pkgs.lib.mapAttrsToList
             (version: { editions, products, sha256 }: builtins.map
               (edition: pkgs.lib.nameValuePair
@@ -117,6 +125,88 @@
               editions
             )
             versions));
+      in
+      rec {
+        packages = {
+          fhs = genFhs { runScript = ""; };
+        } // xilinx-packages;
+
+        checks = {
+          nixpkgs-fmt = pkgs.runCommand "nixpkgs-fmt" { nativeBuildInputs = [ pkgs.nixpkgs-fmt ]; }
+            "nixpkgs-fmt --check ${./.}; touch $out";
+          shellcheck = pkgs.runCommand "shellcheck" { nativeBuildInputs = [ pkgs.shellcheck ]; }
+            "shellcheck ${./utils.sh}; touch $out";
+        };
+
+        devShells.default = pkgs.devshell.mkShell {
+          imports = [ "${inputs.devshell}/extra/git/hooks.nix" ];
+          name = "xilinx-dev-shell";
+          packages = [
+            pkgs.coreutils
+            pkgs.glow
+            pkgs.python3
+            xilinx-packages.vitis-unified-software-platform-vitis_2019-2_1106_2127
+          ];
+          git.hooks = {
+            enable = true;
+            pre-commit.text = ''
+              nix flake check
+            '';
+          };
+          env = [
+            {
+              name = "UTILS_ROOT";
+              value = inputs.fpga-utils;
+            }
+          ];
+          commands =
+            let
+              commandTemplate = command: ''
+                set +u
+                source "$PRJ_ROOT/utils.sh"
+                ${command} ''${@}
+              '';
+            in
+            [
+              {
+                name = "help";
+                command = ''glow "$PRJ_ROOT/README.md"'';
+                help = "";
+              }
+              {
+                name = "restore";
+                command = commandTemplate "restore";
+                help = "restore a project using a generated restore script";
+              }
+              {
+                name = "create-restore-script";
+                command = commandTemplate "create-restore-script";
+                help = "create a restore script for a given project";
+              }
+              {
+                name = "generate-hw-config";
+                command = commandTemplate "generate-hw-config";
+                help = "generate a hw config for given platform";
+              }
+              {
+                name = "build-bootloader";
+                command = commandTemplate "build-bootloader";
+                help = "build the bootloader for a script";
+              }
+              {
+                name = "jtag-boot";
+                command = commandTemplate "jtag-boot";
+                help = "deploy a firmware via jtag";
+              }
+              {
+                name = "launch-picocom";
+                command = ''
+                  picocom --imap lfcrlf --baud 115200 ''${1:-/dev/ttyUSB1}
+                '';
+                help = "launch picocom";
+              }
+            ];
+        };
 
         # just add every package as a hydra job
         hydraJobs = packages;
