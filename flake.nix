@@ -116,16 +116,6 @@
               )
               editions
             )
-            versions)) //
-        {
-          fhs-test = genFhs { runScript = ""; };
-          makeWrapper-test = pkgs.runCommand "mwt" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''
-            mkdir -p $out/bin
-            touch $out/bin/dada
-            chmod +x $out/bin/dada
-            makeWrapper $out/bin/dada $out/bin/dada-wrapped --add-flags vitis --set XYZ ABC
-          '';
-        };
       }
     );
 }
