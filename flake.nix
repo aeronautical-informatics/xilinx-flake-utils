@@ -96,7 +96,7 @@
           wrapper;
         # pkgs.symlinkJoin { name = "${nameLowercase}-${edition}"; paths = [ toolchain-raw fhs ]; };
       in
-      {
+      rec {
         packages = builtins.listToAttrs
           (pkgs.lib.flatten (pkgs.lib.mapAttrsToList
             (version: { editions, products, sha256 }: builtins.map
@@ -116,16 +116,10 @@
               )
               editions
             )
-            versions)) //
-        {
-          fhs-test = genFhs { runScript = ""; };
-          makeWrapper-test = pkgs.runCommand "mwt" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''
-            mkdir -p $out/bin
-            touch $out/bin/dada
-            chmod +x $out/bin/dada
-            makeWrapper $out/bin/dada $out/bin/dada-wrapped --add-flags vitis --set XYZ ABC
-          '';
-        };
+            versions));
+
+        # just add every package as a hydra job
+        hydraJobs = packages;
       }
     );
 }
