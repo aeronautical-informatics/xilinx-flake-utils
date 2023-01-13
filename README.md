@@ -5,6 +5,9 @@ contains builds for both __Vitis__ and __Vivado__. Note that typically the
 __Vitis__ package include a version of vivado, so choose __Vitis__ if you want
 both.
 
+__Note__: If you experience an issue, pay the
+ [troubleshooting section](docs/TROUBLESHOOTING.md) a visit!
+
 # Example usage
 
 __Note__: this presumes that your current environment contains various
@@ -24,3 +27,4 @@ generate-hw-config target/workspace target/hw
 build-bootloader vitis_platform_zynq7000.tcl target/hw/hw_export.xsa target/bootloader
 jtag-boot zynq7000_init.tcl target app.elf
 ```
+
