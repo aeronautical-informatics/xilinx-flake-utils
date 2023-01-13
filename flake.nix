@@ -96,7 +96,7 @@
           wrapper;
         # pkgs.symlinkJoin { name = "${nameLowercase}-${edition}"; paths = [ toolchain-raw fhs ]; };
       in
-      {
+      rec {
         packages = builtins.listToAttrs
           (pkgs.lib.flatten (pkgs.lib.mapAttrsToList
             (version: { editions, products, sha256 }: builtins.map
@@ -116,6 +116,10 @@
               )
               editions
             )
+            versions));
+
+        # just add every package as a hydra job
+        hydraJobs = packages;
       }
     );
 }
