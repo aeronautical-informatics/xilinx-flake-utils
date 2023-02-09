@@ -1,8 +1,6 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.devshell.url = "github:numtide/devshell";
-  inputs.fpga-utils.url = "git+ssh://git@gitlab.dlr.de/ft-ssy-aes/XANDAR/xilinx-workspace.git";
-  inputs.fpga-utils.flake = false;
 
   outputs = { self, nixpkgs, flake-utils, ... } @ inputs:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
@@ -159,12 +157,6 @@
               nix flake check
             '';
           };
-          env = [
-            {
-              name = "UTILS_ROOT";
-              value = inputs.fpga-utils;
-            }
-          ];
           commands =
             let
               commandTemplate = command: ''
@@ -180,14 +172,19 @@
                 help = "";
               }
               {
+                name = "create-project";
+                command = commandTemplate "create-project";
+                help = "creates a new project based on a template";
+              }
+              {
+                name = "store";
+                command = commandTemplate "store";
+                help = "create a restore script for a given project";
+              }
+              {
                 name = "restore";
                 command = commandTemplate "restore";
                 help = "restore a project using a generated restore script";
-              }
-              {
-                name = "create-restore-script";
-                command = commandTemplate "create-restore-script";
-                help = "create a restore script for a given project";
               }
               {
                 name = "generate-hw-config";
