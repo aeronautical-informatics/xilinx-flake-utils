@@ -1,0 +1,42 @@
+diff --git a/main.c b/main.c
+index 43b5ce1..86ae48b 100644
+--- a/main.c
++++ b/main.c
+@@ -296,17 +296,17 @@ int main(void)
+     /*
+      * DDR Read/write test 
+      */
+-	Status = DDRInitCheck();
+-	if (Status == XST_FAILURE) {
+-		fsbl_printf(DEBUG_GENERAL,"DDR_INIT_FAIL \r\n");
+-		/* Error Handling here */
+-		OutputStatus(DDR_INIT_FAIL);
+-		/*
+-		 * Calling FsblHookFallback instead of Fallback
+-		 * since, devcfg driver is not yet initialized
+-		 */
+-		FsblHookFallback();
+-	}
++//	Status = DDRInitCheck();
++//	if (Status == XST_FAILURE) {
++//		fsbl_printf(DEBUG_GENERAL,"DDR_INIT_FAIL \r\n");
++//		/* Error Handling here */
++//		OutputStatus(DDR_INIT_FAIL);
++//		/*
++//		 * Calling FsblHookFallback instead of Fallback
++//		 * since, devcfg driver is not yet initialized
++//		 */
++//		FsblHookFallback();
++//	}
+ 
+ 
+ 	/*
+@@ -380,6 +380,8 @@ int main(void)
+ 	BootModeRegister = Xil_In32(BOOT_MODE_REG);
+ 	BootModeRegister &= BOOT_MODES_MASK;
+ 
++	BootModeRegister = JTAG_MODE;
++
+ 	/*
+ 	 * QSPI BOOT MODE
+ 	 */
