@@ -143,6 +143,7 @@
             pkgs.coreutils
             pkgs.glow
             pkgs.python3
+            pkgs.unzip
             xilinx-packages.vitis-unified-software-platform-vitis_2019-2_1106_2127
           ];
           git.hooks = {

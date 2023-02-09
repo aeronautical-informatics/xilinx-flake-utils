@@ -22,9 +22,10 @@ form of an ELF file, you can deploy the image via JTAG to a running SoC using
 the `jtag-boot` command.
 
 ```console
-restore zynq_7000_basic target
-generate-hw-config target/workspace target/hw
-build-bootloader vitis_platform_zynq7000.tcl target/hw/hw_export.xsa target/bootloader
+create-project zynq7000 target zynq7000_example
+generate-hw-config target/zynq7000_example
+build-bootloader vitis_platform_zynq7000.tcl target/zynq7000_example
+build-bootloader zynq7000 target/zynq7000_example
 jtag-boot zynq7000_init.tcl target app.elf
 ```
 
