@@ -23,8 +23,7 @@ the `jtag-boot` command.
 
 ```console
 create-project zynq7000 target zynq7000_example
-generate-hw-config target/zynq7000_example
-build-bootloader vitis_platform_zynq7000.tcl target/zynq7000_example
+build-hw-config target/zynq7000_example
 build-bootloader zynq7000 target/zynq7000_example
 jtag-boot zynq7000_init.tcl target app.elf
 ```
