@@ -18,37 +18,45 @@
         genFhs = { name ? "xilinx-fhs", runScript ? "bash", profile ? "" }: pkgs.buildFHSUserEnv {
           inherit name runScript profile;
           targetPkgs = pkgs: with pkgs; [
+            # runtime deps
             bash
             coreutils
-            zlib
+            dbus
+            procps
+            which
+
+            # libraries
             lsb-release
-            stdenv.cc.cc
             ncurses5
-            xorg.libXext
-            xorg.libX11
-            xorg.libXrender
-            xorg.libXtst
-            xorg.libXi
-            xorg.libXft
-            xorg.libxcb
-            xorg.libxcb
-            # common requirements
-            freetype
+            stdenv.cc.cc
+            zlib
+
+            # gui libraries
             fontconfig
+            freetype
             glib
             gtk2
             gtk3
+            xorg.libX11
+            xorg.libXext
+            xorg.libXft
+            xorg.libXi
+            xorg.libXrender
+            xorg.libXtst
+            xorg.libxcb
+            xorg.libxcb
+            xorg.xorgserver
 
-            # to compile some xilinx examples
-            opencl-clhpp
+            # compiler stuff to compile some xilinx examples
             ocl-icd
+            opencl-clhpp
             opencl-headers
 
-            # from installLibs.sh
-            graphviz
+            # misc for installLibs.sh
             (lib.hiPrio gcc)
-            unzip
+            graphviz
             nettools
+            unzip
           ];
           multiPkgs = null;
         };
@@ -133,7 +141,7 @@
           nixpkgs-fmt = pkgs.runCommand "nixpkgs-fmt" { nativeBuildInputs = [ pkgs.nixpkgs-fmt ]; }
             "nixpkgs-fmt --check ${./.}; touch $out";
           shellcheck = pkgs.runCommand "shellcheck" { nativeBuildInputs = [ pkgs.shellcheck ]; }
-            "shellcheck ${./utils.sh}; touch $out";
+            "cd ${./.} && shellcheck commands/*; touch $out";
         };
 
         devShells.default = pkgs.devshell.mkShell {
@@ -156,54 +164,30 @@
             let
               commandTemplate = command: ''
                 set +u
-                source "$PRJ_ROOT/utils.sh"
-                ${command} ''${@}
+                exec ${./.}/commands/${command} "''${@}"
               '';
+              commands = {
+                create-project = "creates a new project based on a template";
+                store = "create a restore script for a given project";
+                restore = "restore a project using a generated restore script";
+                build-hw-config = "generate a hw config for given platform";
+                build-bootloader = "build the bootloader for a script";
+                jtag-boot = "deploy a firmware via jtag";
+                launc-picocom = "launc the picocom serial monitor";
+              };
             in
             [
               {
-                name = "help";
+                name = "show-readme";
                 command = ''glow "$PRJ_ROOT/README.md"'';
                 help = "";
               }
-              {
-                name = "create-project";
-                command = commandTemplate "create-project";
-                help = "creates a new project based on a template";
-              }
-              {
-                name = "store";
-                command = commandTemplate "store";
-                help = "create a restore script for a given project";
-              }
-              {
-                name = "restore";
-                command = commandTemplate "restore";
-                help = "restore a project using a generated restore script";
-              }
-              {
-                name = "generate-hw-config";
-                command = commandTemplate "generate-hw-config";
-                help = "generate a hw config for given platform";
-              }
-              {
-                name = "build-bootloader";
-                command = commandTemplate "build-bootloader";
-                help = "build the bootloader for a script";
-              }
-              {
-                name = "jtag-boot";
-                command = commandTemplate "jtag-boot";
-                help = "deploy a firmware via jtag";
-              }
-              {
-                name = "launch-picocom";
-                command = ''
-                  picocom --imap lfcrlf --baud 115200 ''${1:-/dev/ttyUSB1}
-                '';
-                help = "launch picocom";
-              }
-            ];
+            ] ++ (pkgs.lib.mapAttrsToList
+              (name: help: {
+                inherit name help;
+                command = commandTemplate name;
+              })
+              commands);
         };
 
         # just add every package as a hydra job
