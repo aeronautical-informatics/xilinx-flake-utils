@@ -1,6 +1,7 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.devshell.url = "github:numtide/devshell";
+  inputs.devshell.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = { self, nixpkgs, flake-utils, ... } @ inputs:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
