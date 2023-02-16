@@ -1,11 +1,17 @@
 {
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.devshell.url = "github:numtide/devshell";
-  inputs.devshell.inputs.nixpkgs.follows = "nixpkgs";
+  description = "A collection of scripts for Xilinx Vitis/Vivado";
+
+  inputs = {
+    flake-utils.url = "github:numtide/flake-utils";
+    devshell.url = "github:numtide/devshell";
+    devshell.inputs.nixpkgs.follows = "nixpkgs";
+    devshell.inputs.flake-utils.follows = "flake-utils";
+  };
 
   outputs = { self, nixpkgs, flake-utils, ... } @ inputs:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
+        # checkout of the nixpkgs
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
@@ -61,10 +67,16 @@
           ];
           multiPkgs = null;
         };
+
+        # load known versions of Xilinx toolchains from the TOML
         versions = builtins.fromTOML (builtins.readFile ./versions.toml);
+
+        # for each toolchain version, enumerate the available editions
         genProductList = products: builtins.concatStringsSep "," (
           pkgs.lib.mapAttrsToList (name: value: if value then "${name}:1" else "${name}:0")
             products);
+
+        # build a Xilinx toolchain as a nix derivation
         build-xilinx-toolchain = { name, src, edition, products, version }:
           let
             nameLowercase = pkgs.lib.toLower name;
@@ -112,6 +124,8 @@
           in
           wrapper;
 
+        # enumerate all packages buildable from the known versions, built using
+        # `build-xilinx-toolchain`
         xilinx-packages = builtins.listToAttrs
           (pkgs.lib.flatten (pkgs.lib.mapAttrsToList
             (version: { editions, products, sha256 }: builtins.map
@@ -134,6 +148,10 @@
             versions));
       in
       rec {
+        lib = {
+          inherit build-xilinx-toolchain;
+        };
+
         packages = {
           fhs = genFhs { runScript = ""; };
         } // xilinx-packages;
