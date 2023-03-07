@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
+source "$UTILS_ROOT/commands/lib.sh"
+
+
+[[ "$#" == 1 ]] || log usage "restore PROJ_DIR"
+
+_ensure-exists dir PROJ_DIR "$1"
+_ensure-exists "$PROJ_DIR/scripts/restore.tcl"
+_ensure-exists-not "$PROJ_DIR/workspace" "The workspace '$PROJ_DIR/workspace/' already exists" \
+  "Please delete it manually before restoring the project."
+
+pushd "$PROJ_DIR" || return 1
+vivado -nolog -nojournal -mode batch -source "$SCRIPT"
+[[ -d ".Xil/" ]] && rm -r .Xil/
+
+# shellcheck disable=SC2164
+popd

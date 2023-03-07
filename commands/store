@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
+source "$UTILS_ROOT/commands/lib.sh"
+
+
+[[ "$#" == 1 ]] || log usage "store PROJ_DIR"
+
+_ensure-exists file PROJ_FILE "$1/workspace"/*.xpr
+_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/store.tcl"
+
+vivado -nolog -nojournal -mode batch -source "$SCRIPT" "$PROJ_FILE"
