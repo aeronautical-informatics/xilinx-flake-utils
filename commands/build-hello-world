@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
+source "$UTILS_ROOT/commands/lib.sh"
+
+
+[[ "$#" == 2 ]] || log usage "build-hello-world PLATFORM PROJ_DIR" \
+  "available platforms are: zynq7000, zedboard, ultrascale, coraz7"
+
+PLATFORM="$1"
+_ensure-exists dir PROJ_DIR "$2"
+_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_hello_world.tcl"
+
+if [[ -d "$PROJ_DIR/application" ]]
+then
+  rm --recursive --force -- "$PROJ_DIR/application"
+fi
+
+_mkdir-if-missing "$PROJ_DIR/application"
+
+xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration" "$PLATFORM"
