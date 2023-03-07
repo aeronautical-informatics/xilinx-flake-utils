@@ -9,41 +9,9 @@ source "$UTILS_ROOT/commands/lib.sh"
 
 PLATFORM="$1"
 _ensure-exists dir PROJ_DIR "$2"
-_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_platform_$PLATFORM.tcl"
-_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/hw_export.xsa"
+_ensure-exists file PROJ_FILE "$PROJ_DIR/workspace/"*.xpr
+_mkdir-if-missing "$PROJ_DIR/hardware_configuration"
 
-if [[ -d "$PROJ_DIR/bootloader_configuration" ]] || [[ -d "$PROJ_DIR/bootloader_export" ]]
-then
-  rm --recursive --force -- "$PROJ_DIR/"{bootloader_configuration,bootloader_export}
-fi
-
-_mkdir-if-missing "$PROJ_DIR/"{bootloader_configuration,bootloader_export}
-
-xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration" "$XSA"
-
-if [[ "$PLATFORM" == "ultrascale" ]]
-then
-  cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/hw/psu_init.tcl" "$PROJ_DIR/bootloader_export/"
-  cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl_ultrascale.elf"
-  cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/pmufw_ultrascale.elf"
-  cp "$UTILS_ROOT/utils/fsbl_flash_ultrascale.elf" "$PROJ_DIR/bootloader_export/"
-else
-  cp "$PROJ_DIR/bootloader_configuration/${PLATFORM}_platform/hw/ps7_init.tcl" "$PROJ_DIR/bootloader_export/"
-  cp "$PROJ_DIR/bootloader_configuration/fsbl_standard_$PLATFORM/Release/fsbl_standard_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl_$PLATFORM.elf"
-fi
-
-if [[ "$PLATFORM" == "zynq7000" ]]
-then
-  # apply patch to fsbl_modified version
-  pushd "$PROJ_DIR/bootloader_configuration/fsbl_standard_zynq7000/src/" || return 1
-  patch < "$UTILS_ROOT/tcl-lib/disable_ddr_use_always_jtag_zynq7000.patch"
-
-  # shellcheck disable=SC2164
-  popd
-
-  xsct "$UTILS_ROOT/tcl-lib/modified_fsbl_zynq7000.tcl" "$PROJ_DIR/bootloader_configuration"
-  cp "$PROJ_DIR/bootloader_configuration/fsbl_modified_zynq7000/Release/fsbl_modified_zynq7000.elf" "$PROJ_DIR/bootloader_export/fsbl_flash_zynq7000.elf"
-#elif [[ "$PLATFORM" == "zedboard" ]]
-#then
-#  echo "currently not supported"
-fi
+vivado -nolog -nojournal -mode batch \
+    -source "$UTILS_ROOT/tcl-lib/vivado_all.tcl" "$PROJ_FILE" \
+    -tclargs "$PROJ_DIR/hardware_configuration"
