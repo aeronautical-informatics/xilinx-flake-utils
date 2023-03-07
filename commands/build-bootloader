@@ -11,6 +11,8 @@ PLATFORM="$1"
 _ensure-exists dir PROJ_DIR "$2"
 _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_platform_$PLATFORM.tcl"
 _ensure-exists file XSA "$PROJ_DIR/hardware_configuration/hw_export.xsa"
+_ensure-exists file PATCH "$UTILS_ROOT/utils/disable_ddr_use_always_jtag_zynq7000.patch"
+_ensure-exists file FSBL_MOD "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl"
 
 if [[ -d "$PROJ_DIR/bootloader_configuration" ]] || [[ -d "$PROJ_DIR/bootloader_export" ]]
 then
@@ -32,9 +34,9 @@ else
   cp "$PROJ_DIR/bootloader_configuration/fsbl_standard_$PLATFORM/Release/fsbl_standard_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl_$PLATFORM.elf"
 
   pushd "$PROJ_DIR/bootloader_configuration/fsbl_standard_$PLATFORM/src/" || return 1
-  patch < "$UTILS_ROOT/tcl-lib/disable_ddr_use_always_jtag_zynq7000.patch"
+  patch < "$PATCH"
   popd
-  xsct "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl" "$PROJ_DIR/bootloader_configuration" "$PLATFORM"
+  xsct "$FSBL_MOD" "$PROJ_DIR/bootloader_configuration" "$PLATFORM"
   cp "$PROJ_DIR/bootloader_configuration/fsbl_modified_$PLATFORM/Release/fsbl_modified_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl_flash_$PLATFORM.elf"
 fi
 
