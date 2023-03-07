@@ -24,26 +24,36 @@ xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration" "$XSA"
 if [[ "$PLATFORM" == "ultrascale" ]]
 then
   cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/hw/psu_init.tcl" "$PROJ_DIR/bootloader_export/"
-    cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl_ultrascale.elf"
-    cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/pmufw_ultrascale.elf"
+  cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl_ultrascale.elf"
+  cp "$PROJ_DIR/bootloader_configuration/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/pmufw_ultrascale.elf"
   cp "$UTILS_ROOT/utils/fsbl_flash_ultrascale.elf" "$PROJ_DIR/bootloader_export/"
 else
   cp "$PROJ_DIR/bootloader_configuration/${PLATFORM}_platform/hw/ps7_init.tcl" "$PROJ_DIR/bootloader_export/"
   cp "$PROJ_DIR/bootloader_configuration/fsbl_standard_$PLATFORM/Release/fsbl_standard_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl_$PLATFORM.elf"
+
+  pushd "$PROJ_DIR/bootloader_configuration/fsbl_standard_$PLATFORM/src/" || return 1
+  patch < "$UTILS_ROOT/tcl-lib/disable_ddr_use_always_jtag_zynq7000.patch"
+  popd
+  xsct "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl" "$PROJ_DIR/bootloader_configuration" "$PLATFORM"
+  cp "$PROJ_DIR/bootloader_configuration/fsbl_modified_$PLATFORM/Release/fsbl_modified_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl_flash_$PLATFORM.elf"
 fi
 
-if [[ "$PLATFORM" == "zynq7000" ]]
-then
-  # apply patch to fsbl_modified version
-  pushd "$PROJ_DIR/bootloader_configuration/fsbl_standard_zynq7000/src/" || return 1
-  patch < "$UTILS_ROOT/tcl-lib/disable_ddr_use_always_jtag_zynq7000.patch"
+## apply patch to enable JTAG boot
+#if [[ "$PLATFORM" == "zynq7000" ]]
+#then
+#  pushd "$PROJ_DIR/bootloader_configuration/fsbl_standard_zynq7000/src/" || return 1
+#  patch < "$UTILS_ROOT/tcl-lib/disable_ddr_use_always_jtag_zynq7000.patch"
+#  popd
 
-  # shellcheck disable=SC2164
-  popd
-
-  xsct "$UTILS_ROOT/tcl-lib/modified_fsbl_zynq7000.tcl" "$PROJ_DIR/bootloader_configuration"
-  cp "$PROJ_DIR/bootloader_configuration/fsbl_modified_zynq7000/Release/fsbl_modified_zynq7000.elf" "$PROJ_DIR/bootloader_export/fsbl_flash_zynq7000.elf"
+#  xsct "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl" "$PROJ_DIR/bootloader_configuration"
+#  cp "$PROJ_DIR/bootloader_configuration/fsbl_modified_zynq7000/Release/fsbl_modified_zynq7000.elf" "$PROJ_DIR/bootloader_export/fsbl_flash_zynq7000.elf"
 #elif [[ "$PLATFORM" == "zedboard" ]]
 #then
-#  echo "currently not supported"
-fi
+#  pushd "$PROJ_DIR/bootloader_configuration/fsbl_standard_zedboard/src/" || return 1
+#  patch < "$UTILS_ROOT/tcl-lib/disable_ddr_use_always_jtag_zynq7000.patch"
+#  popd
+
+#  xsct "$UTILS_ROOT/tcl-lib/modified_fsbl_zedboard.tcl" "$PROJ_DIR/bootloader_configuration"
+#  cp "$PROJ_DIR/bootloader_configuration/fsbl_modified_zedboard/Release/fsbl_modified_zedboard.elf" "$PROJ_DIR/bootloader_export/fsbl_flash_zedboard.elf"
+
+#fi

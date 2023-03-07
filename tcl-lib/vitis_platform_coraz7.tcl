@@ -17,20 +17,21 @@ platform create -name {coraz7_platform} -hw $xsa_file\
 platform write
 
 platform active {coraz7_platform}
-domain active {zynq_fsbl}
-domain active {standalone_domain}
 
+domain active {zynq_fsbl}
+
+domain active {standalone_domain}
 bsp setlib -name xilffs
 bsp regenerate
 
 platform write
 platform generate
 
-# fsbl standard
+# fsbl standard application
 app create -name fsbl_standard_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
 app config -name fsbl_standard_coraz7 build-config Release
 app build fsbl_standard_coraz7
 
-# fsbl modified (used to load sw in flash)
-#app create -name fsbl_modified_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
-#app config -name fsbl_modified_coraz7 build-config Release
+# fsbl modified application (used to load sw in flash)
+app create -name fsbl_modified_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_modified_coraz7 build-config Release
