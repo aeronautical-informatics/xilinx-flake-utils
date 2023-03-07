@@ -48,12 +48,29 @@
 #include <stdio.h>
 #include "platform.h"
 #include "xil_printf.h"
+#include "sleep.h"
 
 int main()
 {
+    int count = 0;
+
     init_platform();
 
-    printf("Hello World\n\r");    
+    printf("Hello World Application\n\r");
+
+    while(1)
+    {
+        if (count <= 1000)
+        {
+            printf("Platform alive: %d\n\r", count);
+            count++;
+            usleep(1000000);
+        }
+        else
+        {
+            count = 0;
+        }
+    }
 
     cleanup_platform();
     return 0;
