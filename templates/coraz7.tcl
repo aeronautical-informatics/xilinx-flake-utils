@@ -677,3 +677,8 @@ add_files -fileset utils_1 -norecurse "$proj_dir/$proj_name/scripts/update_wrapp
 set_property STEPS.SYNTH_DESIGN.TCL.PRE [ get_files "$proj_dir/$proj_name/scripts/update_wrapper.tcl" -of [get_fileset utils_1] ] [get_runs synth_1]
 
 set_property synth_checkpoint_mode None [get_files  "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"]
+
+# add constraints set to project
+add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/constraints.xdc"
+set_property target_constrs_file "$proj_dir/$proj_name/constr/constraints.xdc" [current_fileset -constrset]
+

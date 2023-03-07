@@ -14,6 +14,7 @@ _ensure-exists-not "$PROJ_DIR/$PROJ_NAME" "Please delete existing project..."
 _mkdir-if-missing "$PROJ_DIR/$PROJ_NAME/"{workspace,constr,hdl,scripts}
 
 cp "$UTILS_ROOT/templates/.gitignore" "$PROJ_DIR/$PROJ_NAME"
+cp "$UTILS_ROOT/templates/constraints_template.xdc" "$PROJ_DIR/$PROJ_NAME/constr/constraints.xdc"
 echo -e "# README for the '$PROJ_NAME' FPGA project\n" > "$PROJ_DIR/$PROJ_NAME/README.md"
 
 _update-wrapper "$PROJ_DIR" "$PROJ_NAME"
