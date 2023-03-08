@@ -13,12 +13,11 @@ set platform [lindex $argv 1]
 setws $workspace
 
 ## clean the modified project
-app clean fsbl_modified_${platform}
+app clean ${platform}_hello_world
 
 ## Regenerate the platform
 platform active ${platform}_platform
 platform generate
 
-app create -name ${platform}_hello_world -platform ${platform}_platform -domain standalone_domain -template {Hello World}
-app config -name ${platform}_hello_world build-config Release
+## Rebuild the modified project
 app build ${platform}_hello_world

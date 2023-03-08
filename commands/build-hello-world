@@ -9,13 +9,23 @@ source "$UTILS_ROOT/commands/lib.sh"
 
 PLATFORM="$1"
 _ensure-exists dir PROJ_DIR "$2"
-_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_hello_world.tcl"
+_ensure-exists file HELLO_WORLD_CREATE "$UTILS_ROOT/tcl-lib/vitis_hello_world_$PLATFORM.tcl"
+_ensure-exists file HELLO_WORLD_BUILD "$UTILS_ROOT/tcl-lib/vitis_build_hello_world.tcl"
+_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/hw_export.xsa"
 
-if [[ -d "$PROJ_DIR/application" ]]
+if [[ -d "$PROJ_DIR/application_configuration" ]] || [[ -d "$PROJ_DIR/application_export" ]]
 then
-  rm --recursive --force -- "$PROJ_DIR/application"
+  rm --recursive --force -- "$PROJ_DIR/"{application_configuration,application_export}
 fi
 
-_mkdir-if-missing "$PROJ_DIR/application"
+_mkdir-if-missing "$PROJ_DIR/"{application_configuration,application_export}
 
-xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration" "$PLATFORM"
+
+xsct "$HELLO_WORLD_CREATE" "$PROJ_DIR/application_configuration" "$XSA"
+
+
+cp --force "$UTILS_ROOT/utils/helloworld.c" "$PROJ_DIR/application_configuration/${PLATFORM}_hello_world/src/"
+
+xsct "$HELLO_WORLD_BUILD" "$PROJ_DIR/application_configuration" "$PLATFORM"
+
+cp "$PROJ_DIR/application_configuration/${PLATFORM}_hello_world/Release/${PLATFORM}_hello_world.elf" "$PROJ_DIR/application_export/${PLATFORM}_application.elf"
