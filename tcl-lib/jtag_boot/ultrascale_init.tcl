@@ -28,10 +28,9 @@ if { ($jtag_id == "JTAG-ONB4 2516330067ABA") || ($jtag_id == "JTAG-ONB4 25163300
 }
 
 targets -set -nocase -filter {name =~"APU*"}
-rst -system
+rst -system	
 after 3000
-#targets -set -filter {jtag_cable_name =~ "JTAG-ONB4 2516330067ACA" && level==0} -index 0
-#targets -set -filter {jtag_cable_name =~ "JTAG-ONB4 2516330594A9A" && level==0} -index 0
+
 fpga -file $bit_file
 targets -set -nocase -filter {name =~"APU*"}
 loadhw -hw $xsa_file -mem-ranges [list {0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}]
@@ -53,12 +52,17 @@ set mode [expr [mrd -value 0xFF5E0200] & 0xf]
 
 targets -set -nocase -filter {name =~ "*A53*#0"}
 rst -processor
+after 500
+
 dow $fsbl_file
 set bp_24_56_fsbl_bp [bpadd -addr &XFsbl_Exit]
+#after 500
 con -block -timeout 60
 bpremove $bp_24_56_fsbl_bp
+
 targets -set -nocase -filter {name =~ "*A53*#0"}
 rst -processor
+after 500
 
 dow $elf_file
 

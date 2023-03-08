@@ -11,19 +11,16 @@ set bit_file [lindex $argv 1]
 set xsa_file [lindex $argv 2]
 set elf_file [lindex $argv 3]
 
-# ps7_init.tcl
 source $ps7_init_file
 
-connect
-
-# This file is executed by the XSCT/ XSDB to configure the platform during boot process
-# It gets the .elf file for the specific application handed over
+# connect to target
+connect -url tcp:127.0.0.1:3121
 
 set jtag_id [dict get [lindex [ jtag targets -filter {level == 0} -target-properties] 0] name]
 
 if { ($jtag_id == "JTAG-ONB4 2516330067ABA") || ($jtag_id == "JTAG-ONB4 2516330067ACA") } {
 	puts "Set bootmode to JTAG"
-	targets -set -nocase -filter {name =~ "*PSU*"}
+	targets -set -nocase -filter {name =~ "APU*"}
 	stop
 	mwr 0xff5e0200 0x0100
 	rst -system

@@ -10,28 +10,30 @@ source "$UTILS_ROOT/commands/lib.sh"
 HW_PLATFORM="$1"
 _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${HW_PLATFORM}_init.tcl"
 _ensure-exists dir PROJ_DIR "$2"
-_ensure-exists file XSA "$(find "$PROJ_DIR" -name hw_export.xsa | head -n 1)"
+#_ensure-exists file XSA "$(find "$PROJ_DIR" -name hw_export.xsa | head -n 1)"
+_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/hw_export.xsa"
+_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/bitstream_export.bit"
 _ensure-exists file ELF "$3"
 
-XSA_TMP_DIR
-XSA_TMP_DIR=$(mktemp --directory -- "/tmp/$HW_PLATFORM-xsa-XXXXXXXXXX")
-unzip -d "$XSA_TMP_DIR" -qq -- "$XSA"
-log info "extracted XSA to $XSA_TMP_DIR"
+#XSA_TMP_DIR
+#XSA_TMP_DIR=$(mktemp --directory -- "/tmp/$HW_PLATFORM-xsa-XXXXXXXXXX")
+#unzip -d "$XSA_TMP_DIR" -qq -- "$XSA"
+#log info "extracted XSA to $XSA_TMP_DIR"
 
-_ensure-exists file BITSTREAM "$XSA_TMP_DIR/hw_export.bit"
+#_ensure-exists file BITSTREAM "$XSA_TMP_DIR/hw_export.bit"
 
 # the different HW platforms differ in their initialization, thus a switch case
 case "$HW_PLATFORM" in
   "zynq7000"|"zedboard"|"coraz7")
-    _ensure-exists file PS7 "$XSA_TMP_DIR/ps7_init.tcl"
+    _ensure-exists file PS7 "$PROJ_DIR/bootloader_export/ps7_init.tcl"
 
     xsct "$SCRIPT" "$PS7" "$BITSTREAM" "$XSA" "$ELF"
   ;;
 
   "ultrascale")
-    _ensure-exists file PMUFW "$(find "$PROJ_DIR" -name pmufw_ultrascale.elf | head -n 1)"
-    _ensure-exists file FSBL "$(find "$PROJ_DIR" -name fsbl_ultrascale.elf | head -n 1)"
-    _ensure-exists file ZYNQMP_UTILS "$(find "$UTILS_ROOT/tcl-lib" -name zynqmp_utils.tcl | head -n 1)"
+    _ensure-exists file PMUFW "$PROJ_DIR/bootloader_export/pmufw_ultrascale.elf"
+    _ensure-exists file FSBL "$PROJ_DIR/bootloader_export/fsbl_ultrascale.elf"
+    _ensure-exists file ZYNQMP_UTILS "$UTILS_ROOT/tcl-lib/jtag_boot/zynqmp_utils.tcl"
 
     xsct "$SCRIPT" "$BITSTREAM" "$XSA" "$PMUFW" "$FSBL" "$ZYNQMP_UTILS" "$ELF"
   ;;
@@ -41,4 +43,4 @@ case "$HW_PLATFORM" in
   ;;
 esac
 
-rm --recursive -- "$XSA_TMP_DIR"
+#rm --recursive -- "$XSA_TMP_DIR"

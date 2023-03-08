@@ -64,7 +64,7 @@ int main()
         {
             printf("Platform alive: %d\n\r", count);
             count++;
-            usleep(1000000);
+            usleep(500000);
         }
         else
         {

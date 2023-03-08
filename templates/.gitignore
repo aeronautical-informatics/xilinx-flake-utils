@@ -5,3 +5,5 @@ workspace/*
 hardware_configuration/*
 bootloader_configuration/*
 bootloader_export/*
+application_configuration/*
+application_export/*
