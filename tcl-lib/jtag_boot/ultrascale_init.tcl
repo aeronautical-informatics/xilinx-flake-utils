@@ -17,15 +17,20 @@ source $zynqmp_utils
 
 connect -url tcp:127.0.0.1:3121
 
-set jtag_id [dict get [lindex [ jtag targets -filter {level == 0} -target-properties] 0] name]
+#set jtag_id [dict get [lindex [ jtag targets -filter {level == 0} -target-properties] 0] name]
 
-if { ($jtag_id == "JTAG-ONB4 2516330067ABA") || ($jtag_id == "JTAG-ONB4 2516330067ACA") } {
-	puts "Set bootmode to JTAG"
-	targets -set -nocase -filter {name =~ "*PSU*"}
-	stop
-	mwr 0xff5e0200 0x0100
-	rst -system
-}
+#if { ($jtag_id == "JTAG-ONB4 2516330067ABA") || ($jtag_id == "JTAG-ONB4 2516330067ACA") } {
+#	puts "Set bootmode to JTAG"
+#	targets -set -nocase -filter {name =~ "*PSU*"}
+#	stop
+#	mwr 0xff5e0200 0x0100
+#	rst -system
+#}
+puts "Set bootmode to JTAG"
+targets -set -nocase -filter {name =~ "*PSU*"}
+stop
+mwr 0xff5e0200 0x0100
+rst -system
 
 targets -set -nocase -filter {name =~"APU*"}
 rst -system	
@@ -56,7 +61,6 @@ after 500
 
 dow $fsbl_file
 set bp_24_56_fsbl_bp [bpadd -addr &XFsbl_Exit]
-#after 500
 con -block -timeout 60
 bpremove $bp_24_56_fsbl_bp
 
