@@ -1,7 +1,7 @@
 #!/usr/bin/env xsct
 
 ################################################################
-# This is a generated script based on design: zynq7000_BD
+# This is a generated script based on design: zynq7000_fcc_BD
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -44,20 +44,12 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # START
 ################################################################
 
-# To test this script, run the following commands from Vivado Tcl console:
-
-# If there is no project opened, this script will create a
-# project, but make sure you do not have an existing project
-# <./myproj/project_1.xpr> in the current working folder.
-
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
    create_project $proj_name $proj_dir/$proj_name/workspace -part xc7z015clg485-2
    set_property target_language VHDL [current_project]
 }
 
-set_property target_language VHDL [current_project]
-set_property simulator_language VHDL [current_project]
 
 # CHANGE DESIGN NAME HERE
 variable design_name
@@ -132,8 +124,6 @@ if { $nRet != 0 } {
 # DESIGN PROCs
 ##################################################################
 
-
-
 # Procedure to create entire design; Provide argument to make
 # procedure reusable. If parentCell is "", will use root.
 proc create_root_design { parentCell } {
@@ -173,12 +163,60 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
+  set CAN_0_RX [ create_bd_port -dir I CAN_0_RX ]
+  set CAN_0_TX [ create_bd_port -dir O CAN_0_TX ]
+  set CAN_1_RX [ create_bd_port -dir I CAN_1_RX ]
+  set CAN_1_TX [ create_bd_port -dir O CAN_1_TX ]
+  set DataEnable_GPIO [ create_bd_port -dir O -from 7 -to 0 DataEnable_GPIO ]
+  set SPI_0_CLK [ create_bd_port -dir O SPI_0_CLK ]
+  set SPI_0_MISO [ create_bd_port -dir I SPI_0_MISO ]
+  set SPI_0_MOSI [ create_bd_port -dir O SPI_0_MOSI ]
+  set SPI_1_CLK [ create_bd_port -dir I SPI_1_CLK ]
+  set SPI_1_MISO [ create_bd_port -dir O SPI_1_MISO ]
+  set SPI_1_MOSI [ create_bd_port -dir I SPI_1_MOSI ]
+  set UART_3_RX [ create_bd_port -dir I UART_3_RX ]
+  set UART_3_TX [ create_bd_port -dir O UART_3_TX ]
+  set UART_4_RX [ create_bd_port -dir I UART_4_RX ]
+  set UART_4_TX [ create_bd_port -dir O UART_4_TX ]
+  set UART_5_RX [ create_bd_port -dir I UART_5_RX ]
+  set UART_5_TX [ create_bd_port -dir O UART_5_TX ]
+  set UART_6_RX [ create_bd_port -dir I UART_6_RX ]
+  set UART_6_TX [ create_bd_port -dir O UART_6_TX ]
+  set UART_7_RX [ create_bd_port -dir I UART_7_RX ]
+  set UART_7_TX [ create_bd_port -dir O UART_7_TX ]
+  set UART_8_RX [ create_bd_port -dir I UART_8_RX ]
+  set UART_8_TX [ create_bd_port -dir O UART_8_TX ]
+
+  # Create instance: DataEnable_GPIO, and set properties
+  set DataEnable_GPIO [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 DataEnable_GPIO ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_OUTPUTS {1} \
+   CONFIG.C_GPIO_WIDTH {8} \
+ ] $DataEnable_GPIO
+  
+  # Create instance: UART_3, and set properties
+  set UART_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_3 ]
+
+  # Create instance: UART_4, and set properties
+  set UART_4 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_4 ]
+
+  # Create instance: UART_5, and set properties
+  set UART_5 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_5 ]
+
+  # Create instance: UART_6, and set properties
+  set UART_6 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_6 ]
+
+  # Create instance: UART_7, and set properties
+  set UART_7 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_7 ]
+
+  # Create instance: UART_8, and set properties
+  set UART_8 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_8 ]
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
   set_property -dict [ list \
    CONFIG.PCW_ACT_APU_PERIPHERAL_FREQMHZ {666.666687} \
-   CONFIG.PCW_ACT_CAN_PERIPHERAL_FREQMHZ {10.000000} \
+   CONFIG.PCW_ACT_CAN_PERIPHERAL_FREQMHZ {100.000000} \
    CONFIG.PCW_ACT_DCI_PERIPHERAL_FREQMHZ {10.158730} \
    CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {125.000000} \
    CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
@@ -190,7 +228,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ACT_QSPI_PERIPHERAL_FREQMHZ {200.000000} \
    CONFIG.PCW_ACT_SDIO_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_SMC_PERIPHERAL_FREQMHZ {10.000000} \
-   CONFIG.PCW_ACT_SPI_PERIPHERAL_FREQMHZ {10.000000} \
+   CONFIG.PCW_ACT_SPI_PERIPHERAL_FREQMHZ {166.666672} \
    CONFIG.PCW_ACT_TPIU_PERIPHERAL_FREQMHZ {200.000000} \
    CONFIG.PCW_ACT_TTC0_CLK0_PERIPHERAL_FREQMHZ {111.111115} \
    CONFIG.PCW_ACT_TTC0_CLK1_PERIPHERAL_FREQMHZ {111.111115} \
@@ -201,8 +239,16 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ACT_UART_PERIPHERAL_FREQMHZ {100.000000} \
    CONFIG.PCW_ACT_WDT_PERIPHERAL_FREQMHZ {111.111115} \
    CONFIG.PCW_ARMPLL_CTRL_FBDIV {40} \
-   CONFIG.PCW_CAN_PERIPHERAL_DIVISOR0 {1} \
-   CONFIG.PCW_CAN_PERIPHERAL_DIVISOR1 {1} \
+   CONFIG.PCW_CAN0_CAN0_IO {EMIO} \
+   CONFIG.PCW_CAN0_GRP_CLK_ENABLE {0} \
+   CONFIG.PCW_CAN0_PERIPHERAL_ENABLE {1} \
+   CONFIG.PCW_CAN1_CAN1_IO {EMIO} \
+   CONFIG.PCW_CAN1_GRP_CLK_ENABLE {0} \
+   CONFIG.PCW_CAN1_PERIPHERAL_ENABLE {1} \
+   CONFIG.PCW_CAN_PERIPHERAL_DIVISOR0 {5} \
+   CONFIG.PCW_CAN_PERIPHERAL_DIVISOR1 {2} \
+   CONFIG.PCW_CAN_PERIPHERAL_FREQMHZ {100} \
+   CONFIG.PCW_CAN_PERIPHERAL_VALID {1} \
    CONFIG.PCW_CLK0_FREQ {50000000} \
    CONFIG.PCW_CLK1_FREQ {10000000} \
    CONFIG.PCW_CLK2_FREQ {10000000} \
@@ -230,11 +276,19 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ENET1_RESET_ENABLE {0} \
    CONFIG.PCW_ENET_RESET_ENABLE {1} \
    CONFIG.PCW_ENET_RESET_SELECT {Share reset pin} \
+   CONFIG.PCW_EN_CAN0 {1} \
+   CONFIG.PCW_EN_CAN1 {1} \
+   CONFIG.PCW_EN_EMIO_CAN0 {1} \
+   CONFIG.PCW_EN_EMIO_CAN1 {1} \
    CONFIG.PCW_EN_EMIO_ENET0 {0} \
+   CONFIG.PCW_EN_EMIO_SPI0 {1} \
+   CONFIG.PCW_EN_EMIO_SPI1 {1} \
    CONFIG.PCW_EN_EMIO_UART0 {0} \
    CONFIG.PCW_EN_ENET0 {1} \
    CONFIG.PCW_EN_GPIO {1} \
    CONFIG.PCW_EN_QSPI {1} \
+   CONFIG.PCW_EN_SPI0 {1} \
+   CONFIG.PCW_EN_SPI1 {1} \
    CONFIG.PCW_EN_UART0 {1} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {4} \
@@ -498,7 +552,25 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_SDIO_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_SINGLE_QSPI_DATA_MODE {x4} \
    CONFIG.PCW_SMC_PERIPHERAL_DIVISOR0 {1} \
-   CONFIG.PCW_SPI_PERIPHERAL_DIVISOR0 {1} \
+   CONFIG.PCW_SPI0_GRP_SS0_ENABLE {1} \
+   CONFIG.PCW_SPI0_GRP_SS0_IO {EMIO} \
+   CONFIG.PCW_SPI0_GRP_SS1_ENABLE {1} \
+   CONFIG.PCW_SPI0_GRP_SS1_IO {EMIO} \
+   CONFIG.PCW_SPI0_GRP_SS2_ENABLE {1} \
+   CONFIG.PCW_SPI0_GRP_SS2_IO {EMIO} \
+   CONFIG.PCW_SPI0_PERIPHERAL_ENABLE {1} \
+   CONFIG.PCW_SPI0_SPI0_IO {EMIO} \
+   CONFIG.PCW_SPI1_GRP_SS0_ENABLE {1} \
+   CONFIG.PCW_SPI1_GRP_SS0_IO {EMIO} \
+   CONFIG.PCW_SPI1_GRP_SS1_ENABLE {1} \
+   CONFIG.PCW_SPI1_GRP_SS1_IO {EMIO} \
+   CONFIG.PCW_SPI1_GRP_SS2_ENABLE {1} \
+   CONFIG.PCW_SPI1_GRP_SS2_IO {EMIO} \
+   CONFIG.PCW_SPI1_PERIPHERAL_ENABLE {1} \
+   CONFIG.PCW_SPI1_SPI1_IO {EMIO} \
+   CONFIG.PCW_SPI_PERIPHERAL_DIVISOR0 {6} \
+   CONFIG.PCW_SPI_PERIPHERAL_FREQMHZ {166.666666} \
+   CONFIG.PCW_SPI_PERIPHERAL_VALID {1} \
    CONFIG.PCW_TPIU_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_UART0_GRP_FULL_ENABLE {0} \
    CONFIG.PCW_UART0_PERIPHERAL_ENABLE {1} \
@@ -528,14 +600,63 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_USB_RESET_ENABLE {1} \
  ] $processing_system7_0
 
+  # Create instance: ps7_0_axi_periph, and set properties
+  set ps7_0_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 ps7_0_axi_periph ]
+  set_property -dict [ list \
+   CONFIG.NUM_MI {7} \
+ ] $ps7_0_axi_periph
+
+  # Create instance: rst_ps7_0_50M, and set properties
+  set rst_ps7_0_50M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_50M ]
+
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
+  connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins ps7_0_axi_periph/S00_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M00_AXI [get_bd_intf_pins UART_3/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M00_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M01_AXI [get_bd_intf_pins UART_4/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M01_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M02_AXI [get_bd_intf_pins UART_5/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M02_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M03_AXI [get_bd_intf_pins UART_6/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M03_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M04_AXI [get_bd_intf_pins UART_7/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M04_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M05_AXI [get_bd_intf_pins UART_8/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M05_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M06_AXI [get_bd_intf_pins DataEnable_GPIO/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M06_AXI]
 
   # Create port connections
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
+  connect_bd_net -net CAN0_PHY_RX_0_1 [get_bd_ports CAN_0_RX] [get_bd_pins processing_system7_0/CAN0_PHY_RX]
+  connect_bd_net -net CAN1_PHY_RX_0_1 [get_bd_ports CAN_1_RX] [get_bd_pins processing_system7_0/CAN1_PHY_RX]
+  connect_bd_net -net Data_Enable_GPIO_gpio_io_o [get_bd_ports DataEnable_GPIO] [get_bd_pins DataEnable_GPIO/gpio_io_o]
+  connect_bd_net -net SPI0_MISO_I_0_1 [get_bd_ports SPI_0_MISO] [get_bd_pins processing_system7_0/SPI0_MISO_I]
+  connect_bd_net -net SPI1_MOSI_I_0_1 [get_bd_ports SPI_1_MOSI] [get_bd_pins processing_system7_0/SPI1_MOSI_I]
+  connect_bd_net -net SPI1_SCLK_I_0_1 [get_bd_ports SPI_1_CLK] [get_bd_pins processing_system7_0/SPI1_SCLK_I]
+  connect_bd_net -net UART_4_sout [get_bd_ports UART_4_TX] [get_bd_pins UART_4/sout]
+  connect_bd_net -net UART_5_sout [get_bd_ports UART_5_TX] [get_bd_pins UART_5/sout]
+  connect_bd_net -net UART_6_sout [get_bd_ports UART_6_TX] [get_bd_pins UART_6/sout]
+  connect_bd_net -net UART_7_sout [get_bd_ports UART_7_TX] [get_bd_pins UART_7/sout]
+  connect_bd_net -net UART_8_sout [get_bd_ports UART_8_TX] [get_bd_pins UART_8/sout]
+  connect_bd_net -net axi_uart16550_0_sout [get_bd_ports UART_3_TX] [get_bd_pins UART_3/sout]
+  connect_bd_net -net processing_system7_0_CAN0_PHY_TX [get_bd_ports CAN_0_TX] [get_bd_pins processing_system7_0/CAN0_PHY_TX]
+  connect_bd_net -net processing_system7_0_CAN1_PHY_TX [get_bd_ports CAN_1_TX] [get_bd_pins processing_system7_0/CAN1_PHY_TX]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins DataEnable_GPIO/s_axi_aclk] [get_bd_pins UART_3/s_axi_aclk] [get_bd_pins UART_4/s_axi_aclk] [get_bd_pins UART_5/s_axi_aclk] [get_bd_pins UART_6/s_axi_aclk] [get_bd_pins UART_7/s_axi_aclk] [get_bd_pins UART_8/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/M06_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_50M/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_50M/ext_reset_in]
+  connect_bd_net -net processing_system7_0_SPI0_MOSI_O [get_bd_ports SPI_0_MOSI] [get_bd_pins processing_system7_0/SPI0_MOSI_O]
+  connect_bd_net -net processing_system7_0_SPI0_SCLK_O [get_bd_ports SPI_0_CLK] [get_bd_pins processing_system7_0/SPI0_SCLK_O]
+  connect_bd_net -net processing_system7_0_SPI1_MISO_O [get_bd_ports SPI_1_MISO] [get_bd_pins processing_system7_0/SPI1_MISO_O]
+  connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins DataEnable_GPIO/s_axi_aresetn] [get_bd_pins UART_3/s_axi_aresetn] [get_bd_pins UART_4/s_axi_aresetn] [get_bd_pins UART_5/s_axi_aresetn] [get_bd_pins UART_6/s_axi_aresetn] [get_bd_pins UART_7/s_axi_aresetn] [get_bd_pins UART_8/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/M06_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
+  connect_bd_net -net sin_0_1 [get_bd_ports UART_3_RX] [get_bd_pins UART_3/sin]
+  connect_bd_net -net sin_0_2 [get_bd_ports UART_4_RX] [get_bd_pins UART_4/sin]
+  connect_bd_net -net sin_0_3 [get_bd_ports UART_5_RX] [get_bd_pins UART_5/sin]
+  connect_bd_net -net sin_0_4 [get_bd_ports UART_6_RX] [get_bd_pins UART_6/sin]
+  connect_bd_net -net sin_0_5 [get_bd_ports UART_7_RX] [get_bd_pins UART_7/sin]
+  connect_bd_net -net sin_0_6 [get_bd_ports UART_8_RX] [get_bd_pins UART_8/sin]
 
   # Create address segments
+  assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs DataEnable_GPIO/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_4/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_5/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_6/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C40000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_7/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C50000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_8/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_3/S_AXI/Reg] -force
 
 
   # Restore current instance
@@ -569,5 +690,31 @@ set_property STEPS.SYNTH_DESIGN.TCL.PRE [ get_files "$proj_dir/$proj_name/script
 set_property synth_checkpoint_mode None [get_files  "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"]
 
 # add constraints set to project
-add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/constraints.xdc"
-set_property target_constrs_file "$proj_dir/$proj_name/constr/constraints.xdc" [current_fileset -constrset]
+add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/constraints_fcc-commanding.xdc"
+set_property target_constrs_file "$proj_dir/$proj_name/constr/constraints_fcc-commanding.xdc" [current_fileset -constrset]
+
+# add LED_Driver_FCC_Commanding.vhd file to project
+add_files -norecurse "$proj_dir/$proj_name/hdl/LED_Driver_FCC_Commanding.vhd"
+update_compile_order -fileset sources_1
+
+# open block design
+open_bd_design "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"
+
+# create block design cell
+create_bd_cell -type module -reference LED_Driver_FCC_Commanding LED_Driver_FCC_Commanding
+
+# create ports
+startgroup
+make_bd_pins_external  [get_bd_pins LED_Driver_FCC_Commanding/LED11_i]
+make_bd_pins_external  [get_bd_pins LED_Driver_FCC_Commanding/LED11_o]
+make_bd_pins_external  [get_bd_pins LED_Driver_FCC_Commanding/LED12_i]
+make_bd_pins_external  [get_bd_pins LED_Driver_FCC_Commanding/LED12_o]
+endgroup
+set_property name LED11_IN [get_bd_ports LED11_i_0]
+set_property name LED11_OUT [get_bd_ports LED11_o_0]
+set_property name LED12_IN [get_bd_ports LED12_i_0]
+set_property name LED12_OUT [get_bd_ports LED12_o_0]
+
+# save block design
+save_bd_design
+update_compile_order -fileset sources_1

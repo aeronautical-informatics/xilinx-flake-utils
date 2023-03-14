@@ -4,18 +4,54 @@ UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
 source "$UTILS_ROOT/commands/lib.sh"
 
 
-[[ "$#" == 3 ]] || log usage "create-project TEMPLATE PROJ_DIR PROJ_NAME" \
-  "available TEMPLATEs are: zynq7000, ultrascale, zedboard, coraz7"
+[[ "$#" == 4 ]] || log usage "create-project TARGET PLATFORM PROJ_DIR PROJ_NAME" \
+  "available TARGETSs are: zynq7000, ultrascale, zedboard, coraz7" \
+  "available PLATFORMs are: fcc-commanding, fcc-monitoring, devboard"
 
-_ensure-exists file SCRIPT "$UTILS_ROOT/templates/$1.tcl"
-PROJ_DIR="$2"
-PROJ_NAME="$3"
+TARGET="$1"
+PLATFORM="$2"
+PROJ_DIR="$3"
+PROJ_NAME="$4"
+
+case "$PLATFORM" in
+  "fcc-commanding"|"fcc-monitoring")
+    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$TARGET"_$PLATFORM.tcl" 
+    _ensure-exists file CONST "$UTILS_ROOT/templates/constraints_"$PLATFORM"_template.xdc"
+    _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/led_driver_"$PLATFORM"_template.vhd"
+  ;;
+  "devboard")
+    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/$TARGET.tcl"
+    _ensure-exists file CONST "$UTILS_ROOT/templates/constraints_template.xdc"
+  ;;
+  *)
+    log error "unsupported platform $PLATFORM" 1
+  ;;
+esac
+
+
+
 _ensure-exists-not "$PROJ_DIR/$PROJ_NAME" "Please delete existing project..."
 _mkdir-if-missing "$PROJ_DIR/$PROJ_NAME/"{workspace,constr,hdl,scripts}
 
 cp "$UTILS_ROOT/templates/.gitignore" "$PROJ_DIR/$PROJ_NAME"
-cp "$UTILS_ROOT/templates/constraints_template.xdc" "$PROJ_DIR/$PROJ_NAME/constr/constraints.xdc"
 echo -e "# README for the '$PROJ_NAME' FPGA project\n" > "$PROJ_DIR/$PROJ_NAME/README.md"
+
+case "$PLATFORM" in
+  "fcc-commanding")        
+    cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_FCC_Commanding.vhd"
+    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/constraints_"$PLATFORM".xdc"
+  ;;  
+  "fcc-monitoring")
+    cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_FCC_Monitoring.vhd"
+    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/constraints_"$PLATFORM".xdc"
+  ;;
+  "devboard")
+    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/constraints.xdc"
+  ;;
+  *)
+    log error "unsupported platform $PLATFORM" 1
+  ;;
+esac
 
 _update-wrapper "$PROJ_DIR" "$PROJ_NAME"
 
