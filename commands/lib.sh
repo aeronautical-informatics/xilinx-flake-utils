@@ -33,7 +33,7 @@ log(){
       echo -e "${BOLD}[${RED}ERROR${RESET}${BOLD}]${RESET} ${2//\\n/\n        }"
     ;;
     usage)
-      echo -e "usage: $2\n"
+      echo -e "Usage: $2\n"
       for line in "${@:3}"
       do
         echo -e "$line"
@@ -125,4 +125,8 @@ _update-wrapper(){
 # cleans up build artifacts from viviad & vitis
 _clean_up(){
   [[ -d ".Xil/" ]] &&  rm --recursive .Xil/
+}
+
+_set_petalinux_env(){
+  source /program/Xilinx/Petalinux/2019.2/settings.sh
 }

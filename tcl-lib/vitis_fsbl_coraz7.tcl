@@ -11,12 +11,12 @@ set xsa_file [lindex $argv 1]
 
 setws $workspace
 
-platform create -name {zedboard_platform} -hw $xsa_file\
+platform create -name {coraz7_platform} -hw $xsa_file \
     -proc {ps7_cortexa9_0} -os {standalone} -out $workspace
 
 platform write
 
-platform active {zedboard_platform}
+platform active {coraz7_platform}
 
 domain active {zynq_fsbl}
 
@@ -28,10 +28,10 @@ platform write
 platform generate
 
 # fsbl standard application
-app create -name fsbl_standard_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_standard_zedboard build-config Release
-app build fsbl_standard_zedboard
+app create -name fsbl_standard_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_standard_coraz7 build-config Release
+app build fsbl_standard_coraz7
 
 # fsbl modified application (used to load sw in flash)
-app create -name fsbl_modified_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_modified_zedboard build-config Release
+app create -name fsbl_modified_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_modified_coraz7 build-config Release

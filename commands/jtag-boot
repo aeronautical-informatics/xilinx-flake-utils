@@ -3,29 +3,53 @@
 UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
 source "$UTILS_ROOT/commands/lib.sh"
 
+help()
+{   
+log usage "jtag-boot [Arguments]
+Arguments:    
+    PROJ_DIR    project directory
+    ELF         application .elf file"    
+}
 
-[[ "$#" == 3 ]] || log usage "jtag-boot HW_PLATFORM PROJ_DIR ELF" \
-  "available hw platforms are: zynq7000, coraz7, zedboard, ultrascale"
+if [[ $# -eq 0 ]]
+then
+  help
+fi
 
-HW_PLATFORM="$1"
-_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${HW_PLATFORM}_init.tcl"
-_ensure-exists dir PROJ_DIR "$2"
-#_ensure-exists file XSA "$(find "$PROJ_DIR" -name hw_export.xsa | head -n 1)"
-_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/hw_export.xsa"
-_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/bitstream_export.bit"
-_ensure-exists file ELF "$3"
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+        help
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
 
-#XSA_TMP_DIR
-#XSA_TMP_DIR=$(mktemp --directory -- "/tmp/$HW_PLATFORM-xsa-XXXXXXXXXX")
-#unzip -d "$XSA_TMP_DIR" -qq -- "$XSA"
-#log info "extracted XSA to $XSA_TMP_DIR"
+set -- "${POSITIONAL[@]}"
 
-#_ensure-exists file BITSTREAM "$XSA_TMP_DIR/hw_export.bit"
+if [[ $# -lt 2 ]]
+then
+  help
+fi
 
-# the different HW platforms differ in their initialization, thus a switch case
-case "$HW_PLATFORM" in
+_ensure-exists dir PROJ_DIR "$1"
+_ensure-exists file ELF "$2"
+_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
+
+PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
+CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
+
+_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init.tcl"
+_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
+_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/"$CARRIER"_bitstream_export.bit"
+
+case "$PLATFORM" in
   "zynq7000"|"zedboard"|"coraz7")
-    _ensure-exists file PS7 "$PROJ_DIR/bootloader_export/ps7_init.tcl"
+    _ensure-exists file PS7 "$PROJ_DIR/bootloader_export/fsbl/ps7_init.tcl"
 
     xsct "$SCRIPT" "$PS7" "$BITSTREAM" "$XSA" "$ELF"
   ;;
@@ -39,8 +63,6 @@ case "$HW_PLATFORM" in
   ;;
 
   *)
-    log error "unsupported platform $HW_PLATFORM" 1
+    log error "unsupported platform $PLATFORM" 1
   ;;
 esac
-
-#rm --recursive -- "$XSA_TMP_DIR"

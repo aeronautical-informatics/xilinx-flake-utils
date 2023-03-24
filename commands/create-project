@@ -3,32 +3,76 @@
 UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
 source "$UTILS_ROOT/commands/lib.sh"
 
+help()
+{   
+log usage "create-project [Arguments] [Options]
+Arguments:    
+    PLATFORM    zynq7000, ultrascale, zedboard, coraz7
+    PROJ_DIR    project directory
+    PROJ_NAME   project name
+    
+Options:   
+    -t, --template TEMPLATE    lane-commanding, lane-monitoring"
+}
 
-[[ "$#" == 4 ]] || log usage "create-project TARGET PLATFORM PROJ_DIR PROJ_NAME" \
-  "available TARGETSs are: zynq7000, ultrascale, zedboard, coraz7" \
-  "available PLATFORMs are: fcc-commanding, fcc-monitoring, devboard"
+if [[ $# -eq 0 ]]
+then
+  help
+fi
 
-TARGET="$1"
-PLATFORM="$2"
-PROJ_DIR="$3"
-PROJ_NAME="$4"
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -t|--template)
+        TEMPLATE=$2            
+        shift 2
+        ;;
+    -h|--help)
+        help
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
+
+set -- "${POSITIONAL[@]}"
+
+if [[ $# -lt 3 ]]
+then
+  help
+fi
+
+PLATFORM="$1"
+PROJ_DIR="$2"
+PROJ_NAME="$3"
 
 case "$PLATFORM" in
-  "fcc-commanding"|"fcc-monitoring")
-    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$TARGET"_$PLATFORM.tcl" 
-    _ensure-exists file CONST "$UTILS_ROOT/templates/constraints_"$PLATFORM"_template.xdc"
-    _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/led_driver_"$PLATFORM"_template.vhd"
-  ;;
-  "devboard")
-    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/$TARGET.tcl"
+  "zynq7000"|"ultrascale")
+    case "$TEMPLATE" in
+      "lane-commanding"|"lane-monitoring")
+        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_$TEMPLATE.tcl"
+        _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/"$TEMPLATE"_led_driver_template.vhd"
+        _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/fcc_"$TEMPLATE"_constraints_template.xdc"
+        _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/devboard_"$TEMPLATE"_constraints_template.xdc"
+        ;;
+      *)
+        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/$PLATFORM.tcl"
+        _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/constraints_template.xdc"
+        _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/constraints_template.xdc"
+        ;;
+    esac
+    ;;
+  "zedboard"|"coraz7")
+    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/$PLATFORM.tcl"
     _ensure-exists file CONST "$UTILS_ROOT/templates/constraints_template.xdc"
-  ;;
+    ;;
   *)
     log error "unsupported platform $PLATFORM" 1
-  ;;
+    ;;
 esac
-
-
+    
 
 _ensure-exists-not "$PROJ_DIR/$PROJ_NAME" "Please delete existing project..."
 _mkdir-if-missing "$PROJ_DIR/$PROJ_NAME/"{workspace,constr,hdl,scripts}
@@ -36,21 +80,26 @@ _mkdir-if-missing "$PROJ_DIR/$PROJ_NAME/"{workspace,constr,hdl,scripts}
 cp "$UTILS_ROOT/templates/.gitignore" "$PROJ_DIR/$PROJ_NAME"
 echo -e "# README for the '$PROJ_NAME' FPGA project\n" > "$PROJ_DIR/$PROJ_NAME/README.md"
 
-case "$PLATFORM" in
-  "fcc-commanding")        
-    cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_FCC_Commanding.vhd"
-    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/constraints_"$PLATFORM".xdc"
-  ;;  
-  "fcc-monitoring")
-    cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_FCC_Monitoring.vhd"
-    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/constraints_"$PLATFORM".xdc"
-  ;;
-  "devboard")
-    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/constraints.xdc"
-  ;;
-  *)
-    log error "unsupported platform $PLATFORM" 1
-  ;;
+echo -e "platform=$PLATFORM" > "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "carrier=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "template=$TEMPLATE" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+
+case "$PLATFORM" in 
+  "zynq7000"|"ultrascale")
+    cp "$CONST_FCC" "$PROJ_DIR/$PROJ_NAME/constr/fcc_constraints.xdc"
+    cp "$CONST_DEV" "$PROJ_DIR/$PROJ_NAME/constr/devboard_constraints.xdc"
+    case "$TEMPLATE" in
+      "lane-commanding")        
+        cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_Lane_Commanding.vhd"
+        ;;  
+      "lane-monitoring")
+        cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_Lane_Monitoring.vhd"
+        ;;  
+    esac
+    ;;
+  "zedboard"|"coraz7")
+    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/"$PLATFORM"_constraints.xdc"
+    ;;
 esac
 
 _update-wrapper "$PROJ_DIR" "$PROJ_NAME"

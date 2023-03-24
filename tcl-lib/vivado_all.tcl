@@ -1,12 +1,16 @@
 #!/usr/bin/env xsct
 
-if { $argc != 1 } {
+if { $argc != 3 } {
 	set prog_name [file tail $argv0]
-    puts "usage: $prog_name out_dir"
+    puts "usage: $prog_name proj_dir out_dir platform"
 	exit 0
 }
 
-set out_dir [lindex $argv 0]
+set proj_dir [lindex $argv 0]
+set out_dir [lindex $argv 1]
+set platform [lindex $argv 2]
+
+set_property target_constrs_file "$proj_dir/constr/${platform}_constraints.xdc" [current_fileset -constrset]
 
 # run synthesis
 # Create a new run when it is not available
@@ -36,8 +40,8 @@ wait_on_run impl_automated -quiet
 
 # run generate_bitstream
 open_impl_design impl_automated
-write_bitstream -force "$out_dir/bitstream_export.bit"
+write_bitstream -force "$out_dir/${platform}_bitstream_export.bit"
 
 # run export_hardware
 open_impl_design impl_automated
-write_hw_platform -force -fixed -include_bit -file "$out_dir/hw_export.xsa"
+write_hw_platform -force -fixed -include_bit -file "$out_dir/${platform}_hw_export.xsa"

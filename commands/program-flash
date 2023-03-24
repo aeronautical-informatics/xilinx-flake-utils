@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
+source "$UTILS_ROOT/commands/lib.sh"
+
+help()
+{   
+log usage "program-flash [Arguments]
+Arguments:        
+    PROJ_DIR    project directory"    
+}
+
+if [[ $# -eq 0 ]]
+then
+  help
+fi
+
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+        help
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
+
+set -- "${POSITIONAL[@]}"
+
+if [[ $# -lt 1 ]]
+then
+  help
+fi
+
+_ensure-exists dir PROJ_DIR "$1"
+_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
+_ensure-exists file IMAGE "$PROJ_DIR/boot_image/BOOT.bin"
+
+PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
+CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
+
+_ensure-exists file FSBL_FLASH "$PROJ_DIR/bootloader_export/fsbl/fsbl_flash_$PLATFORM.elf"
+
+case "$PLATFORM" in
+    "zynq7000")
+        hw_server -d -I 30 -s tcp:localhost:3121
+        
+        program_flash -f "$IMAGE" -fsbl "$FSBL_FLASH" -flash_type qspi-x4-single -blank_check -verify -url tcp:localhost:3121
+        ;;
+    *)
+        log error "Program Flash for $PLATFORM is not supported." 1
+        ;;
+esac

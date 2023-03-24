@@ -3,8 +3,37 @@
 UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
 source "$UTILS_ROOT/commands/lib.sh"
 
+help()
+{   
+log usage "store [Arguments]
+Arguments:        
+    PROJ_DIR    project directory"    
+}
 
-[[ "$#" == 1 ]] || log usage "store PROJ_DIR"
+if [[ $# -eq 0 ]]
+then
+  help
+fi
+
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+        help
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
+
+set -- "${POSITIONAL[@]}"
+
+if [[ $# -lt 1 ]]
+then
+  help
+fi
 
 _ensure-exists file PROJ_FILE "$1/workspace"/*.xpr
 _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/store.tcl"

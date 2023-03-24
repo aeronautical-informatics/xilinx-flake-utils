@@ -1,0 +1,6 @@
+the_ROM_image:
+{
+        [bootloader]../bootloader_export/fsbl/fsbl_%platform.elf
+        ../hardware_configuration/%carrier_bitstream_export.bit
+        ../bootloader_export/u-boot/u-boot.elf
+}

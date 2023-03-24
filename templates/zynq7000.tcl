@@ -225,10 +225,12 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ENET_RESET_ENABLE {1} \
    CONFIG.PCW_ENET_RESET_SELECT {Share reset pin} \
    CONFIG.PCW_EN_EMIO_ENET0 {0} \
+   CONFIG.PCW_EN_EMIO_TTC0 {1} \
    CONFIG.PCW_EN_EMIO_UART0 {0} \
    CONFIG.PCW_EN_ENET0 {1} \
    CONFIG.PCW_EN_GPIO {1} \
    CONFIG.PCW_EN_QSPI {1} \
+   CONFIG.PCW_EN_TTC0 {1} \
    CONFIG.PCW_EN_UART0 {1} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {4} \
@@ -494,6 +496,12 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_SMC_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_SPI_PERIPHERAL_DIVISOR0 {1} \
    CONFIG.PCW_TPIU_PERIPHERAL_DIVISOR0 {1} \
+   CONFIG.PCW_TTC0_CLK0_PERIPHERAL_FREQMHZ {133.333333} \
+   CONFIG.PCW_TTC0_CLK1_PERIPHERAL_FREQMHZ {133.333333} \
+   CONFIG.PCW_TTC0_CLK2_PERIPHERAL_FREQMHZ {133.333333} \
+   CONFIG.PCW_TTC0_PERIPHERAL_ENABLE {1} \
+   CONFIG.PCW_TTC0_TTC0_IO {EMIO} \
+   CONFIG.PCW_TTC_PERIPHERAL_FREQMHZ {50} \
    CONFIG.PCW_UART0_GRP_FULL_ENABLE {0} \
    CONFIG.PCW_UART0_PERIPHERAL_ENABLE {1} \
    CONFIG.PCW_UART0_UART0_IO {MIO 14 .. 15} \
@@ -563,5 +571,6 @@ set_property STEPS.SYNTH_DESIGN.TCL.PRE [ get_files "$proj_dir/$proj_name/script
 set_property synth_checkpoint_mode None [get_files  "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"]
 
 # add constraints set to project
-add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/constraints.xdc"
-set_property target_constrs_file "$proj_dir/$proj_name/constr/constraints.xdc" [current_fileset -constrset]
+add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/fcc_constraints.xdc"
+add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/devboard_constraints.xdc"
+#set_property target_constrs_file "$proj_dir/$proj_name/constr/${platform}_constraints.xdc" [current_fileset -constrset]

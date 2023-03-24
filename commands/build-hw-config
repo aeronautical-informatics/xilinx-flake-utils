@@ -3,15 +3,73 @@
 UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
 source "$UTILS_ROOT/commands/lib.sh"
 
+help()
+{   
+log usage "build-hw-config [Arguments] [Options]
+Arguments:        
+    PROJ_DIR    project directory
 
-[[ "$#" == 2 ]] || log usage "build-hw-config PLATFORM PROJ_DIR" \
-  "available platforms are: zynq7000, zedboard, ultrascale, coraz7"
+Options:   
+    -c, --carrier CARRIER    devboard, fcc"
+}
 
-PLATFORM="$1"
-_ensure-exists dir PROJ_DIR "$2"
+if [[ $# -eq 0 ]]
+then
+  help
+fi
+
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -c|--carrier)
+        CARRIER=$2
+        shift 2
+        ;;
+    -h|--help)
+        help
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
+
+set -- "${POSITIONAL[@]}"
+
+_ensure-exists dir PROJ_DIR "$1"
 _ensure-exists file PROJ_FILE "$PROJ_DIR/workspace/"*.xpr
+_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
 _mkdir-if-missing "$PROJ_DIR/hardware_configuration"
+
+PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
+
+case "$PLATFORM" in 
+    "zynq7000"|"ultrascale")
+        case "$CARRIER" in 
+            "devboard"|"fcc")
+                ;;
+            "")
+                log error "please specify a carrier board: devboard, fcc"
+                help
+                return 1
+                ;;
+            *)
+                log error "unsupported carrier $CARRIER" 1
+                ;;
+        esac
+        ;;
+    "zedboard"|"coraz7")
+        CARRIER="$PLATFORM"
+        ;;
+    *)
+        log error "unsupported platform $PLATFORM" 1
+        ;;
+esac
+
+#echo -e "carrier=$CARRIER" >> "$PROJ_DIR/project.cfg"
+sed -i "2s/.*/"carrier=$CARRIER"/" "$PROJ_CFG"
 
 vivado -nolog -nojournal -mode batch \
     -source "$UTILS_ROOT/tcl-lib/vivado_all.tcl" "$PROJ_FILE" \
-    -tclargs "$PROJ_DIR/hardware_configuration"
+    -tclargs "$PROJ_DIR" "$PROJ_DIR/hardware_configuration" "$CARRIER"

@@ -696,6 +696,7 @@ set_property STEPS.SYNTH_DESIGN.TCL.PRE [ get_files "$proj_dir/$proj_name/script
 set_property synth_checkpoint_mode None [get_files  "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"]
 
 # add constraints set to project
-add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/constraints.xdc"
-set_property target_constrs_file "$proj_dir/$proj_name/constr/constraints.xdc" [current_fileset -constrset]
+add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/fcc_constraints.xdc"
+add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/devboard_constraints.xdc"
+#set_property target_constrs_file "$proj_dir/$proj_name/constr/${platform}_constraints.xdc" [current_fileset -constrset]
 
