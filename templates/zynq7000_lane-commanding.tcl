@@ -1,7 +1,7 @@
 #!/usr/bin/env xsct
 
 ################################################################
-# This is a generated script based on design: zynq7000_fcc_BD
+# This is a generated script based on design: zynq7000_fcc_com_BD
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -169,7 +169,7 @@ proc create_root_design { parentCell } {
   set CAN_0_TX [ create_bd_port -dir O CAN_0_TX ]
   set CAN_1_RX [ create_bd_port -dir I CAN_1_RX ]
   set CAN_1_TX [ create_bd_port -dir O CAN_1_TX ]
-  set DataEnable_GPIO [ create_bd_port -dir O -from 7 -to 0 DataEnable_GPIO ]
+  set DataEnable_GPIO [ create_bd_port -dir O -from 8 -to 0 DataEnable_GPIO ]
   set SPI_0_CLK [ create_bd_port -dir O SPI_0_CLK ]
   set SPI_0_MISO [ create_bd_port -dir I SPI_0_MISO ]
   set SPI_0_MOSI [ create_bd_port -dir O SPI_0_MOSI ]
@@ -188,12 +188,14 @@ proc create_root_design { parentCell } {
   set UART_7_TX [ create_bd_port -dir O UART_7_TX ]
   set UART_8_RX [ create_bd_port -dir I UART_8_RX ]
   set UART_8_TX [ create_bd_port -dir O UART_8_TX ]
+  set UART_A_RX [ create_bd_port -dir I UART_A_RX ]
+  set UART_A_TX [ create_bd_port -dir O UART_A_TX ]
 
   # Create instance: DataEnable_GPIO, and set properties
   set DataEnable_GPIO [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 DataEnable_GPIO ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {9} \
  ] $DataEnable_GPIO
   
   # Create instance: UART_3, and set properties
@@ -213,6 +215,9 @@ proc create_root_design { parentCell } {
 
   # Create instance: UART_8, and set properties
   set UART_8 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_8 ]
+
+  # Create instance: UART_A, and set properties
+  set UART_A [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uart16550:2.0 UART_A ]
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -613,7 +618,7 @@ proc create_root_design { parentCell } {
   # Create instance: ps7_0_axi_periph, and set properties
   set ps7_0_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 ps7_0_axi_periph ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {7} \
+   CONFIG.NUM_MI {8} \
  ] $ps7_0_axi_periph
 
   # Create instance: rst_ps7_0_50M, and set properties
@@ -630,6 +635,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net ps7_0_axi_periph_M04_AXI [get_bd_intf_pins UART_7/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M04_AXI]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_M05_AXI [get_bd_intf_pins UART_8/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M05_AXI]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_M06_AXI [get_bd_intf_pins DataEnable_GPIO/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M06_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M07_AXI [get_bd_intf_pins UART_A/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M07_AXI]
 
   # Create port connections
   connect_bd_net -net CAN0_PHY_RX_0_1 [get_bd_ports CAN_0_RX] [get_bd_pins processing_system7_0/CAN0_PHY_RX]
@@ -643,30 +649,33 @@ proc create_root_design { parentCell } {
   connect_bd_net -net UART_6_sout [get_bd_ports UART_6_TX] [get_bd_pins UART_6/sout]
   connect_bd_net -net UART_7_sout [get_bd_ports UART_7_TX] [get_bd_pins UART_7/sout]
   connect_bd_net -net UART_8_sout [get_bd_ports UART_8_TX] [get_bd_pins UART_8/sout]
+  connect_bd_net -net UART_A_sout [get_bd_ports UART_A_TX] [get_bd_pins UART_A/sout]
   connect_bd_net -net axi_uart16550_0_sout [get_bd_ports UART_3_TX] [get_bd_pins UART_3/sout]
   connect_bd_net -net processing_system7_0_CAN0_PHY_TX [get_bd_ports CAN_0_TX] [get_bd_pins processing_system7_0/CAN0_PHY_TX]
   connect_bd_net -net processing_system7_0_CAN1_PHY_TX [get_bd_ports CAN_1_TX] [get_bd_pins processing_system7_0/CAN1_PHY_TX]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins DataEnable_GPIO/s_axi_aclk] [get_bd_pins UART_3/s_axi_aclk] [get_bd_pins UART_4/s_axi_aclk] [get_bd_pins UART_5/s_axi_aclk] [get_bd_pins UART_6/s_axi_aclk] [get_bd_pins UART_7/s_axi_aclk] [get_bd_pins UART_8/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/M06_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_50M/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins DataEnable_GPIO/s_axi_aclk] [get_bd_pins UART_3/s_axi_aclk] [get_bd_pins UART_4/s_axi_aclk] [get_bd_pins UART_5/s_axi_aclk] [get_bd_pins UART_6/s_axi_aclk] [get_bd_pins UART_7/s_axi_aclk] [get_bd_pins UART_8/s_axi_aclk] [get_bd_pins UART_A/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/M06_ACLK] [get_bd_pins ps7_0_axi_periph/M07_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_50M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_50M/ext_reset_in]
   connect_bd_net -net processing_system7_0_SPI0_MOSI_O [get_bd_ports SPI_0_MOSI] [get_bd_pins processing_system7_0/SPI0_MOSI_O]
   connect_bd_net -net processing_system7_0_SPI0_SCLK_O [get_bd_ports SPI_0_CLK] [get_bd_pins processing_system7_0/SPI0_SCLK_O]
   connect_bd_net -net processing_system7_0_SPI1_MISO_O [get_bd_ports SPI_1_MISO] [get_bd_pins processing_system7_0/SPI1_MISO_O]
-  connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins DataEnable_GPIO/s_axi_aresetn] [get_bd_pins UART_3/s_axi_aresetn] [get_bd_pins UART_4/s_axi_aresetn] [get_bd_pins UART_5/s_axi_aresetn] [get_bd_pins UART_6/s_axi_aresetn] [get_bd_pins UART_7/s_axi_aresetn] [get_bd_pins UART_8/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/M06_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
-  connect_bd_net -net sin_0_1 [get_bd_ports UART_3_RX] [get_bd_pins UART_3/sin]
-  connect_bd_net -net sin_0_2 [get_bd_ports UART_4_RX] [get_bd_pins UART_4/sin]
-  connect_bd_net -net sin_0_3 [get_bd_ports UART_5_RX] [get_bd_pins UART_5/sin]
-  connect_bd_net -net sin_0_4 [get_bd_ports UART_6_RX] [get_bd_pins UART_6/sin]
-  connect_bd_net -net sin_0_5 [get_bd_ports UART_7_RX] [get_bd_pins UART_7/sin]
-  connect_bd_net -net sin_0_6 [get_bd_ports UART_8_RX] [get_bd_pins UART_8/sin]
+  connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins DataEnable_GPIO/s_axi_aresetn] [get_bd_pins UART_3/s_axi_aresetn] [get_bd_pins UART_4/s_axi_aresetn] [get_bd_pins UART_5/s_axi_aresetn] [get_bd_pins UART_6/s_axi_aresetn] [get_bd_pins UART_7/s_axi_aresetn] [get_bd_pins UART_8/s_axi_aresetn] [get_bd_pins UART_A/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/M06_ARESETN] [get_bd_pins ps7_0_axi_periph/M07_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
+  connect_bd_net -net UART_3_RX [get_bd_ports UART_3_RX] [get_bd_pins UART_3/sin]
+  connect_bd_net -net UART_4_RX [get_bd_ports UART_4_RX] [get_bd_pins UART_4/sin]
+  connect_bd_net -net UART_5_RX [get_bd_ports UART_5_RX] [get_bd_pins UART_5/sin]
+  connect_bd_net -net UART_6_RX [get_bd_ports UART_6_RX] [get_bd_pins UART_6/sin]
+  connect_bd_net -net UART_7_RX [get_bd_ports UART_7_RX] [get_bd_pins UART_7/sin]
+  connect_bd_net -net UART_8_RX [get_bd_ports UART_8_RX] [get_bd_pins UART_8/sin]
+  connect_bd_net -net UART_A_RX [get_bd_ports UART_A_RX] [get_bd_pins UART_A/sin]
 
   # Create address segments
   assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs DataEnable_GPIO/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_3/S_AXI/Reg] -force
   assign_bd_address -offset 0x43C10000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_4/S_AXI/Reg] -force
   assign_bd_address -offset 0x43C20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_5/S_AXI/Reg] -force
   assign_bd_address -offset 0x43C30000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_6/S_AXI/Reg] -force
   assign_bd_address -offset 0x43C40000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_7/S_AXI/Reg] -force
   assign_bd_address -offset 0x43C50000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_8/S_AXI/Reg] -force
-  assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_3/S_AXI/Reg] -force
+  assign_bd_address -offset 0x43C60000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs UART_A/S_AXI/Reg] -force
 
 
   # Restore current instance
