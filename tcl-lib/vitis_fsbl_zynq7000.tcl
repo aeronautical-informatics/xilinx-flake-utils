@@ -14,13 +14,13 @@ setws $workspace
 platform create -name {zynq7000_platform} -hw $xsa_file \
 	-proc {ps7_cortexa9_0} -os {standalone} -out $workspace
 
-#platform write
+platform write
 
-#platform active {zynq7000_platform}
+platform active {zynq7000_platform}
 
-#domain active {zynq_fsbl}
+domain active {zynq_fsbl}
 
-#domain active {standalone_domain}
+domain active {standalone_domain}
 bsp setlib -name xilffs
 bsp regenerate
 
