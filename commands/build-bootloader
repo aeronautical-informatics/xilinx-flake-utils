@@ -5,10 +5,12 @@ source "$UTILS_ROOT/commands/lib.sh"
 
 help()
 {   
-log usage "build-bootloader [Arguments]
+log usage "build-bootloader [Arguments] [Options]
 Arguments:    
     TYPE        fsbl, u-boot
-    PROJ_DIR    project directory"    
+    PROJ_DIR    project directory
+Options:
+    -p, --petalinux-path  PETALINUX_PATH  path to petalinux install directory (/program/Xilinx/Petalinux/2019.2)"
 }
 
 if [[ $# -eq 0 ]]
@@ -16,11 +18,17 @@ then
   help
 fi
 
+PETALINUX_PATH=""
+
 POSITIONAL=() 
 while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
         help
+        ;;
+    -p|--petalinux-path)
+        PETALINUX_PATH=$2
+        shift 2
         ;;
     *)
         POSITIONAL+=($1)
@@ -74,7 +82,7 @@ case "$TYPE" in
         cp "$PROJ_DIR/bootloader_configuration/fsbl/"$PLATFORM"_platform/hw/ps7_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
         cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_standard_$PLATFORM/Release/fsbl_standard_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_$PLATFORM.elf"
 
-        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_standard_$PLATFORM/src/" || return 1
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_modified_$PLATFORM/src/" || return 1
         patch < "$PATCH_FSBL"
         popd
         xsct "$FSBL_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "$PLATFORM"
@@ -87,7 +95,7 @@ case "$TYPE" in
     echo "Build of FSBL finished!"
     ;;
   "u-boot")
-    _set_petalinux_env
+    _set_petalinux_env "$PETALINUX_PATH"
     _ensure-exists file PATCH_UBOOT_PROJ "$UTILS_ROOT/utils/project_mods.patch"    
 
     if [[ -d "$PROJ_DIR/bootloader_configuration/u-boot/" ]] || [[ -d "$PROJ_DIR/bootloader_export/u-boot/" ]]
