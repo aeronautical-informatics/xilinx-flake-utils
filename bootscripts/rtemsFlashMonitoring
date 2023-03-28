@@ -1,0 +1,26 @@
+echo ===============================
+echo ======== RTEMS Flash ==========
+echo ===============================
+echo ------- settings -------
+
+setenv boot_image 'sf read ${loadaddr} ${flash_img} ${img_size}; bootm ${loadaddr}'
+
+setenv tmp_addr 0x08000000
+setenv flash_img 0x700000
+
+setenv img_dir /srv/tftp/hap/hap.monitoring.img
+
+
+echo ------- Init Flash -------
+sf probe
+
+echo ------- Download software image ------
+tftpboot ${tmp_addr} ${img_dir}
+setenv img_size ${filesize}
+echo ------- Write image to flash ------
+sf erase ${flash_img} +${img_size}
+sf write ${tmp_addr} ${flash_img} ${img_size}
+saveenv 
+
+echo ------- Boot from Flash ------
+run boot_image

@@ -1,0 +1,25 @@
+echo ========================
+echo ========= linux ========
+echo ========================
+echo ------- settings -------
+setenv image_path /srv/tftp/hap/uImage
+setenv dtb_path /srv/tftp/hap/dtb
+setenv rootfs_path /srv/tftp/hap/rootfs
+
+setenv image_adr 0x03000000
+setenv dtb_adr 0x02A00000
+setenv rootfs_adr 0x02000000
+
+setenv fetch_image 'tftpboot ${image_adr} ${image_path}'
+setenv fetch_dtb 'tftpboot ${dtb_adr} ${dtb_path}'
+setenv fetch_rootfs 'tftpboot ${rootfs_adr} ${rootfs_path}'
+
+setenv boot_linux 'bootm ${image_adr} ${rootfs_adr} ${dtb_adr}'
+
+echo ------- fetching -------
+run fetch_image
+run fetch_dtb
+run fetch_rootfs
+
+echo ------- booting -------
+run boot_linux

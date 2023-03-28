@@ -7,7 +7,7 @@ help()
 {   
 log usage "build-bootloader [Arguments] [Options]
 Arguments:    
-    TYPE        fsbl, u-boot
+    TYPE        fsbl, u-boot, all (fsbl + u-boot)
     PROJ_DIR    project directory
 Options:
     -p, --petalinux-path  PETALINUX_PATH  path to petalinux install directory (/program/Xilinx/Petalinux/2019.2)"
@@ -95,6 +95,102 @@ case "$TYPE" in
     echo "Build of FSBL finished!"
     ;;
   "u-boot")
+    _set_petalinux_env "$PETALINUX_PATH"
+    _ensure-exists file PATCH_UBOOT_PROJ "$UTILS_ROOT/utils/project_mods.patch"    
+
+    if [[ -d "$PROJ_DIR/bootloader_configuration/u-boot/" ]] || [[ -d "$PROJ_DIR/bootloader_export/u-boot/" ]]
+    then
+      rm --recursive --force -- "$PROJ_DIR/bootloader_configuration/u-boot/"
+      rm --recursive --force -- "$PROJ_DIR/bootloader_export/u-boot/"
+    fi
+    _mkdir-if-missing "$PROJ_DIR/bootloader_configuration/u-boot/"
+    _mkdir-if-missing "$PROJ_DIR/bootloader_export/u-boot/"
+
+    case "$PLATFORM" in
+      "zynq7000")
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/" || return 1
+        petalinux-create --type project --template zynq --name u_boot_$PLATFORM
+        popd
+        cp "$XSA" "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/"
+
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/" || return 1
+        petalinux-config --get-hw-description --silentconfig
+        popd
+
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/project-spec/configs/" || return 1
+        patch < "$PATCH_UBOOT_PROJ"
+        popd
+
+        case "$TEMPLATE" in
+          "lane-commanding"|"lane-monitoring")
+            _ensure-exists file PATCH_UBOOT_LAB_LANE "$UTILS_ROOT/utils/lab_setup_mods_lane.patch"
+            pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/project-spec/meta-user/recipes-bsp/u-boot/files/" || return 1
+            patch < "$PATCH_UBOOT_LAB_LANE"
+            sed -i "s/%platform/"$PLATFORM"/g" "./platform-top.h"
+            sed -i "s/%lane/"$TEMPLATE"/g" "./platform-top.h"
+            popd
+            ;;
+          *)
+            _ensure-exists file PATCH_UBOOT_LAB "$UTILS_ROOT/utils/lab_setup_mods.patch"
+            pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/project-spec/meta-user/recipes-bsp/u-boot/files/" || return 1
+            patch < "$PATCH_UBOOT_LAB"
+            sed -i -e 's/"%platform"/"$PLATFORM"/g' "./platform-top.h"
+            popd
+            ;;
+        esac
+
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/" || return 1
+        petalinux-build -c u-boot
+        popd
+
+        cp "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/images/linux/u-boot.elf" "$PROJ_DIR/bootloader_export/u-boot/"
+        ;;
+      *)
+        log error "U-Boot generation for $PLATFORM is not supported." 1
+        ;;
+    esac
+    echo "Build of U-Boot finished!"
+    ;;
+  "all")
+    # fsbl
+    _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_fsbl_$PLATFORM.tcl"
+    _ensure-exists file PATCH_FSBL "$UTILS_ROOT/utils/disable_ddr_use_always_jtag_zynq7000.patch"
+    _ensure-exists file FSBL_MOD "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl"
+
+    if [[ -d "$PROJ_DIR/bootloader_configuration/fsbl/" ]] || [[ -d "$PROJ_DIR/bootloader_export/fsbl/" ]]
+    then
+      rm --recursive --force -- "$PROJ_DIR/bootloader_configuration/fsbl/"
+      rm --recursive --force -- "$PROJ_DIR/bootloader_export/fsbl/"
+    fi
+    _mkdir-if-missing "$PROJ_DIR/bootloader_configuration/fsbl/"
+    _mkdir-if-missing "$PROJ_DIR/bootloader_export/fsbl/"
+
+    xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration/fsbl" "$XSA"
+
+    case "$PLATFORM" in
+      "ultrascale")
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/hw/psu_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
+        cp "$UTILS_ROOT/utils/fsbl_flash_ultrascale.elf" "$PROJ_DIR/bootloader_export/fsbl/"
+        ;;
+      "zynq7000"|"zedboard"|"coraz7")
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/"$PLATFORM"_platform/hw/ps7_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_standard_$PLATFORM/Release/fsbl_standard_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_$PLATFORM.elf"
+
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_modified_$PLATFORM/src/" || return 1
+        patch < "$PATCH_FSBL"
+        popd
+        xsct "$FSBL_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "$PLATFORM"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_modified_$PLATFORM/Release/fsbl_modified_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_flash_$PLATFORM.elf"
+        ;;
+      *)
+        log error "unsupported platform $PLATFORM" 1
+        ;;
+    esac
+    echo "Build of FSBL finished!"
+
+    # u-boot
     _set_petalinux_env "$PETALINUX_PATH"
     _ensure-exists file PATCH_UBOOT_PROJ "$UTILS_ROOT/utils/project_mods.patch"    
 

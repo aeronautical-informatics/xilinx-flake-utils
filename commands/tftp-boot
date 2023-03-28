@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
+source "$UTILS_ROOT/commands/lib.sh"
+
+help()
+{   
+log usage "tftp-boot [Arguments] [Options]
+Arguments: 
+    TYPE        application type (baremetal)
+    PROJ_DIR    project directory
+    APPLICATION application.elf image
+Options:
+    --flash     write the application image into flash and enable boot from flash"
+    
+}
+
+if [[ $# -eq 0 ]]
+then
+  help
+fi
+
+FLASH=false
+
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+        help
+        ;; 
+    --flash)
+        FLASH=true
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
+
+set -- "${POSITIONAL[@]}"
+
+if [[ $# -lt 3 ]]
+then
+  help
+fi
+
+TYPE="$1"
+APPLICATION="$3"
+_ensure-exists dir PROJ_DIR "$2"
+_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
+
+PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
+CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
+TEMPLATE=$(grep "template=" "$PROJ_CFG" | cut -d'=' -f2)

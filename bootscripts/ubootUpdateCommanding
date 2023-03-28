@@ -1,0 +1,48 @@
+echo =================================
+echo ======== Update U-Boot ==========
+echo =================================
+
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo !! Do not disconnect board while updating !!
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+echo ------- settings -------
+setenv tmp_addr 0x08000000
+setenv ub_size 0x3E0000
+setenv img_dir /srv/tftp/hap/uboot.commanding.img
+
+
+echo ------- Download U-Boot image ------
+if tftpboot ${tmp_addr} ${img_dir}; then
+    echo Download Successful
+    setenv img_size ${filesize};
+else
+    echo !! Warning. Download Failed. Aborting Update !!;
+    sleep 5;
+    reset;
+fi;
+
+
+echo ------- Init Flash -------
+sf probe
+
+echo ------- Erase Flash -------
+sf erase 0x0 ${ub_size}
+
+echo ------- Blank Check -------
+mw 0x0F800000 ffffffff ${ub_size}
+sf read 0x0F000000 0x0 ${ub_size}
+cmp.b 0x0F000000 0x0F800000 ${ub_size}
+
+echo ------- Write U-Boot to Flash ------
+sf write ${tmp_addr} 0x0 ${img_size}
+
+echo ------- Check written Data ------
+sf read 0x0F000000 0x0 ${img_size}
+cmp.b 0x0F000000 ${tmp_addr} ${img_size}
+
+echo ------- Updating U-Boot Done ------
+echo Resetting now will restart the update process again. Abort the upcoming autoboot to stop.
+echo This instance of U-Boot continues to run but it is the old version.
+echo Please reset, then load default environment variables and set serverip and ethernet/MAC address and reset again to complete the update.
+echo See ubootUpdate.md for help.

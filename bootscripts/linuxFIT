@@ -1,0 +1,16 @@
+echo ========================
+echo ======= linuxFIT =======
+echo ========================
+echo ------- settings -------
+setenv image_path /srv/tftp/hap/image.ub
+setenv image_adr 0x01000000
+
+setenv fetch_image 'tftpboot ${image_adr} ${image_path}'
+
+setenv boot_linux 'bootm ${image_adr}'
+
+echo ------- fetching -------
+run fetch_image
+
+echo ------- booting -------
+run boot_linux

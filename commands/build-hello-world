@@ -3,15 +3,51 @@
 UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
 source "$UTILS_ROOT/commands/lib.sh"
 
+help()
+{   
+log usage "build-hello-world [Arguments] [Options]
+Arguments:        
+    PROJ_DIR    project directory
 
-[[ "$#" == 2 ]] || log usage "build-hello-world PLATFORM PROJ_DIR" \
+Options:   
+    "
+}
+
+if [[ $# -eq 0 ]]
+then
+  help
+fi
+
+POSITIONAL=() 
+while [[ $# -gt 0 ]]; do
+  case $1 in 
+    -h|--help)
+        help
+        ;;
+    *)
+        POSITIONAL+=($1)
+        shift
+        ;;
+  esac
+done
+
+set -- "${POSITIONAL[@]}"
+
+if [[ $# -lt 1 ]]
+then
+  help
+fi
+
+[[ "$#" == 1 ]] || log usage "build-hello-world PLATFORM PROJ_DIR" \
   "available platforms are: zynq7000, zedboard, ultrascale, coraz7"
 
-PLATFORM="$1"
-_ensure-exists dir PROJ_DIR "$2"
+_ensure-exists dir PROJ_DIR "$1"
+_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
+PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
+CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 _ensure-exists file HELLO_WORLD_CREATE "$UTILS_ROOT/tcl-lib/vitis_hello_world_$PLATFORM.tcl"
 _ensure-exists file HELLO_WORLD_BUILD "$UTILS_ROOT/tcl-lib/vitis_build_hello_world.tcl"
-_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/hw_export.xsa"
+_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
 
 if [[ -d "$PROJ_DIR/application_configuration" ]] || [[ -d "$PROJ_DIR/application_export" ]]
 then

@@ -19,11 +19,11 @@
 +#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW     0
 +
 +// Boot Process
-+#define CONFIG_BOOTDELAY                        0
++#define CONFIG_BOOTDELAY                        1
 +#define CONFIG_USE_BOOTCOMMAND
 +#define CONFIG_BOOTCOMMAND                      "echo Flag Status: Update=${updateFlag} Dev=${devFlag};"\
 +												"if ${updateFlag}; "\
-+													"then if dhcp && ping ${serverip} && tftpboot 0x01000000 /srv/tftp/bootscript.%platform.img; "\
++													"then if dhcp && ping ${serverip} && tftpboot 0x01000000 /srv/tftp/general/bootscript.%platform.img; "\
 +														"then if ${devFlag}; "\
 +															"then source 0x01000000; "\
 +															"else echo FCC Software Update Successful; "\
@@ -54,6 +54,7 @@
 +	PSSERIAL0 \ 
 +	"nc=setenv stdout nc;setenv stdin nc;\0" \ 
 +	"ethaddr=\0" \
++    "serverip=\0" \
 +	"autoload=no\0" \ 
 +	"sdbootdev=0\0" \ 
 +	"clobstart=0x10000000\0" \ 
