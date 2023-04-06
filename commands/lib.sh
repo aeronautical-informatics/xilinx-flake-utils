@@ -130,8 +130,8 @@ _clean_up(){
 _set_petalinux_env(){
   case "$1" in
     "")
-      #source /program/Xilinx/Petalinux/2019.2/settings.sh
-      source /program/Xilinx/Petalinux/2019.2
+      source /program/Xilinx/Petalinux/2019.2/settings.sh
+      #source /program/Xilinx/Petalinux/2019.2
       ;;
     *)
       source "$1"
