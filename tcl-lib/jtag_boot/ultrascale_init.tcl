@@ -36,9 +36,14 @@ targets -set -nocase -filter {name =~"APU*"}
 rst -system	
 after 3000
 
-fpga -file $bit_file
-targets -set -nocase -filter {name =~"APU*"}
-loadhw -hw $xsa_file -mem-ranges [list {0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}]
+targets -set -nocase -filter {name =~ "*A53*#0"}
+rst -processor
+after 500
+
+dow $fsbl_file
+set bp_24_56_fsbl_bp [bpadd -addr &XFsbl_Exit]
+con -block -timeout 60
+bpremove $bp_24_56_fsbl_bp
 
 #Disable Security gates to view PMU MB target
 targets -set -filter {name =~ "PSU"}
@@ -55,14 +60,9 @@ configparams force-mem-access 1
 targets -set -nocase -filter {name =~"APU*"}
 set mode [expr [mrd -value 0xFF5E0200] & 0xf]
 
-targets -set -nocase -filter {name =~ "*A53*#0"}
-rst -processor
-after 500
-
-dow $fsbl_file
-set bp_24_56_fsbl_bp [bpadd -addr &XFsbl_Exit]
-con -block -timeout 60
-bpremove $bp_24_56_fsbl_bp
+fpga -file $bit_file
+targets -set -nocase -filter {name =~"APU*"}
+loadhw -hw $xsa_file -mem-ranges [list {0x80000000 0xbfffffff} {0x400000000 0x5ffffffff} {0x1000000000 0x7fffffffff}]
 
 targets -set -nocase -filter {name =~ "*A53*#0"}
 rst -processor
