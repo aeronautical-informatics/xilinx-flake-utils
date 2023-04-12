@@ -55,13 +55,17 @@ case "$PLATFORM" in
   ;;
 
   "ultrascale")
-    #_ensure-exists file PMUFW "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
-    _ensure-exists file PMUFW "$PROJ_DIR/../../Reference_Designs/TE0821-test_board-vivado_2019.2-build_15_20201006103533/test_board/prebuilt/software/3eg_1e_2gb/pmufw.elf"
-    #_ensure-exists file FSBL "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
-    _ensure-exists file FSBL "$PROJ_DIR/../../Reference_Designs/TE0821-test_board-vivado_2019.2-build_15_20201006103533/test_board/prebuilt/software/3eg_1e_2gb/fsbl.elf"
+    _ensure-exists file PMUFW "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
+    #_ensure-exists file PMUFW "$PROJ_DIR/../../Reference_Designs/TE0821-test_board-vivado_2019.2-build_15_20201006103533/test_board/prebuilt/software/3eg_1e_2gb/pmufw.elf"
+    _ensure-exists file FSBL "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
+    #_ensure-exists file FSBL "$PROJ_DIR/../../Reference_Designs/TE0821-test_board-vivado_2019.2-build_15_20201006103533/test_board/prebuilt/software/3eg_1e_2gb/fsbl.elf"
     _ensure-exists file ZYNQMP_UTILS "$UTILS_ROOT/tcl-lib/jtag_boot/zynqmp_utils.tcl"
+    _ensure-exists file ATF "$PROJ_DIR/bootloader_export/fsbl/bl31.elf"
+    _ensure-exists file PSU "$PROJ_DIR/bootloader_export/fsbl/psu_init.tcl"
+    _ensure-exists file SYS_DTB "$PROJ_DIR/bootloader_export/fsbl/system.dtb"
 
-    xsct "$SCRIPT" "$BITSTREAM" "$XSA" "$PMUFW" "$FSBL" "$ZYNQMP_UTILS" "$ELF"
+
+    xsct "$SCRIPT" "$BITSTREAM" "$XSA" "$PMUFW" "$FSBL" "$ZYNQMP_UTILS" "$ATF" "$ELF" "$PSU" "$SYS_DTB"
   ;;
 
   *)

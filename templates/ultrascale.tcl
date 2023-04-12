@@ -222,7 +222,6 @@ proc create_root_design { parentCell } {
    CONFIG.PSU_MIO_23_POLARITY {Default} \
    CONFIG.PSU_MIO_24_DIRECTION {inout} \
    CONFIG.PSU_MIO_24_POLARITY {Default} \
-   CONFIG.PSU_MIO_25_POLARITY {Default} \
    CONFIG.PSU_MIO_2_DIRECTION {inout} \
    CONFIG.PSU_MIO_2_POLARITY {Default} \
    CONFIG.PSU_MIO_30_DIRECTION {in} \
@@ -651,6 +650,7 @@ proc create_root_design { parentCell } {
    CONFIG.PSU__USB0__PERIPHERAL__IO {MIO 52 .. 63} \
    CONFIG.PSU__USB0__RESET__ENABLE {1} \
    CONFIG.PSU__USB0__RESET__IO {MIO 25} \
+   CONFIG.PSU__USB1__RESET__ENABLE {0} \
    CONFIG.PSU__USB2_0__EMIO__ENABLE {0} \
    CONFIG.PSU__USB3_0__EMIO__ENABLE {0} \
    CONFIG.PSU__USB3_0__PERIPHERAL__ENABLE {0} \
