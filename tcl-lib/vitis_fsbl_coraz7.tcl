@@ -27,11 +27,14 @@ bsp regenerate
 platform write
 platform generate
 
-# fsbl standard application
-app create -name fsbl_standard_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_standard_coraz7 build-config Release
-app build fsbl_standard_coraz7
+# fsbl application (JTAG bootmode)
+app create -name fsbl_jtag_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_jtag_coraz7 build-config Release
 
-# fsbl modified application (used to load sw in flash)
-app create -name fsbl_modified_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_modified_coraz7 build-config Release
+# fsbl application (QSPI bootmode)
+app create -name fsbl_qspi_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_qspi_coraz7 build-config Release
+
+# fsbl application (used to load sw in flash)
+app create -name fsbl_flash_coraz7 -platform coraz7_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_flash_coraz7 build-config Release

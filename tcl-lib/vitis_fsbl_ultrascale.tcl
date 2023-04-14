@@ -14,7 +14,7 @@ setws $workspace
 platform create -name {ultrascale_platform} -hw $xsa_file\
     -proc {psu_cortexa53_0} -os {standalone} -out $workspace
 
-platform write
+#platform write
 
 platform active {ultrascale_platform}
 
@@ -24,13 +24,14 @@ bsp setlib -name xilflash
 bsp setlib -name xilpm
 bsp setlib -name xilsecure
 bsp config zynqmp_fsbl_bsp true
+bsp config hypervisor_guest true
 bsp regenerate
 
 domain active {zynqmp_pmufw}
 bsp setlib -name xilfpga
 bsp setlib -name xilskey
 bsp setlib -name xilsecure
-bsp config zynqmp_fsbl_bsp true
+bsp config zynqmp_fsbl_bsp false
 bsp regenerate
 
 domain active {standalone_domain}

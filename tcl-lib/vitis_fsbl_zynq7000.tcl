@@ -27,11 +27,14 @@ bsp regenerate
 platform write
 platform generate
 
-# fsbl standard application
-app create -name fsbl_standard_zynq7000 -platform zynq7000_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_standard_zynq7000 build-config Release
-app build fsbl_standard_zynq7000
+# fsbl application (JTAG bootmode)
+app create -name fsbl_jtag_zynq7000 -platform zynq7000_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_jtag_zynq7000 build-config Release
 
-# fsbl modified application (used to load sw in flash)
-app create -name fsbl_modified_zynq7000 -platform zynq7000_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_modified_zynq7000 build-config Release
+# fsbl application (QSPI bootmode)
+app create -name fsbl_qspi_zynq7000 -platform zynq7000_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_qspi_zynq7000 build-config Release
+
+# fsbl application (used to load sw in flash)
+app create -name fsbl_flash_zynq7000 -platform zynq7000_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_flash_zynq7000 build-config Release

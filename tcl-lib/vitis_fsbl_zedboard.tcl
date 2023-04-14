@@ -27,11 +27,14 @@ bsp regenerate
 platform write
 platform generate
 
-# fsbl standard application
-app create -name fsbl_standard_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_standard_zedboard build-config Release
-app build fsbl_standard_zedboard
+# fsbl application (JTAG bootmode)
+app create -name fsbl_jtag_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_jtag_zedboard build-config Release
 
-# fsbl modified application (used to load sw in flash)
-app create -name fsbl_modified_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
-app config -name fsbl_modified_zedboard build-config Release
+# fsbl application (QSPI bootmode)
+app create -name fsbl_qspi_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_qspi_zedboard build-config Release
+
+# fsbl application (used to load sw in flash)
+app create -name fsbl_flash_zedboard -platform zedboard_platform -domain standalone_domain -template {Zynq FSBL}
+app config -name fsbl_flash_zedboard build-config Release

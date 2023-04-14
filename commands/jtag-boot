@@ -43,32 +43,38 @@ _ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
 PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
 CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 
-_ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init.tcl"
-_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
+
+
 _ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/"$CARRIER"_bitstream_export.bit"
 
 case "$PLATFORM" in
   "zynq7000"|"zedboard"|"coraz7")
-    _ensure-exists file PS7 "$PROJ_DIR/bootloader_export/fsbl/ps7_init.tcl"
-
+    _ensure-exists file PS7 "$PROJ_DIR/hardware_configuration/ps7_init.tcl"
+    _ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
+    _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init.tcl"
     xsct "$SCRIPT" "$PS7" "$BITSTREAM" "$XSA" "$ELF"
-  ;;
+    ;;
 
   "ultrascale")
     _ensure-exists file PMUFW "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
-    #_ensure-exists file PMUFW "$PROJ_DIR/../../Reference_Designs/TE0821-test_board-vivado_2019.2-build_15_20201006103533/test_board/prebuilt/software/3eg_1e_2gb/pmufw.elf"
     _ensure-exists file FSBL "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
-    #_ensure-exists file FSBL "$PROJ_DIR/../../Reference_Designs/TE0821-test_board-vivado_2019.2-build_15_20201006103533/test_board/prebuilt/software/3eg_1e_2gb/fsbl.elf"
-    _ensure-exists file ZYNQMP_UTILS "$UTILS_ROOT/tcl-lib/jtag_boot/zynqmp_utils.tcl"
-    _ensure-exists file ATF "$PROJ_DIR/bootloader_export/fsbl/bl31.elf"
-    _ensure-exists file PSU "$PROJ_DIR/bootloader_export/fsbl/psu_init.tcl"
-    _ensure-exists file SYS_DTB "$PROJ_DIR/bootloader_export/fsbl/system.dtb"
-
-
-    xsct "$SCRIPT" "$BITSTREAM" "$XSA" "$PMUFW" "$FSBL" "$ZYNQMP_UTILS" "$ATF" "$ELF" "$PSU" "$SYS_DTB"
-  ;;
-
+    _ensure-exists file ZYNQMP_UTILS "$UTILS_ROOT/tcl-lib/jtag_boot/zynqmp_utils.tcl"    
+    _ensure-exists file PSU "$PROJ_DIR/hardware_configuration/psu_init.tcl"
+    
+    case "$ELF" in
+      "u-boot.elf")
+        _ensure-exists file ATF "$PROJ_DIR/bootloader_export/fsbl/bl31.elf"
+        _ensure-exists file SYS_DTB "$PROJ_DIR/bootloader_export/fsbl/system.dtb"
+        _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init_u_boot.tcl"
+        xsct "$SCRIPT" "$BITSTREAM" "$PMUFW" "$PSU" "$FSBL" "$SYS_DTB" "$ELF" "$ATF"
+        ;;
+      *)
+        _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init.tcl"
+        xsct "$SCRIPT" "$BITSTREAM" "$PMUFW" "$PSU" "$FSBL" "$ELF"
+        ;;
+    esac    
+    ;;
   *)
     log error "unsupported platform $PLATFORM" 1
-  ;;
+    ;;
 esac

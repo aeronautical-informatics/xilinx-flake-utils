@@ -73,3 +73,19 @@ sed -i "2s/.*/"carrier=$CARRIER"/" "$PROJ_CFG"
 vivado -nolog -nojournal -mode batch \
     -source "$UTILS_ROOT/tcl-lib/vivado_all.tcl" "$PROJ_FILE" \
     -tclargs "$PROJ_DIR" "$PROJ_DIR/hardware_configuration" "$CARRIER"
+
+unzip "${PROJ_DIR}/hardware_configuration/${CARRIER}_hw_export.xsa" -d "${PROJ_DIR}/hardware_configuration/extract_tmp"
+
+case "$PLATFORM" in
+    "zynq7000"|"zedboard"|"coraz7")
+        cp --force "${PROJ_DIR}/hardware_configuration/extract_tmp/ps7_init.tcl" "${PROJ_DIR}/hardware_configuration/"
+        ;;
+    "ultrascale")        
+        cp --force "${PROJ_DIR}/hardware_configuration/extract_tmp/psu_init.tcl" "${PROJ_DIR}/hardware_configuration/"        
+        ;;
+    *)
+        log error "unsupported platform $PLATFORM" 1
+        ;;
+esac
+
+rm -r "${PROJ_DIR}/hardware_configuration/extract_tmp"

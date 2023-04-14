@@ -58,8 +58,10 @@ _ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.x
 case "$TYPE" in 
   "fsbl")
     _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_fsbl_$PLATFORM.tcl"
-    _ensure-exists file PATCH_FSBL "$UTILS_ROOT/utils/disable_ddr_use_always_jtag_zynq7000.patch"
-    _ensure-exists file FSBL_MOD "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl"
+    _ensure-exists file FSBL_JTAG_PATCH "$UTILS_ROOT/utils/fsbl_jtag_$PLATFORM.patch"
+    _ensure-exists file FSBL_QSPI_PATCH "$UTILS_ROOT/utils/fsbl_qspi_$PLATFORM.patch"
+    _ensure-exists file FSBL_FLASH_PATCH "$UTILS_ROOT/utils/fsbl_flash_$PLATFORM.patch"
+    _ensure-exists file SCRIPT_FSBL_MOD "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl" #TODO: add two remaining app projects --> build modified fsbl for all three
 
     if [[ -d "$PROJ_DIR/bootloader_configuration/fsbl/" ]] || [[ -d "$PROJ_DIR/bootloader_export/fsbl/" ]]
     then
@@ -71,22 +73,34 @@ case "$TYPE" in
 
     xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration/fsbl" "$XSA"
 
-    case "$PLATFORM" in
+    case "$PLATFORM" in      
+      "zynq7000"|"zedboard"|"coraz7")
+        # apply patch to fsbl_jtag
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_jtag_$PLATFORM/src/" || return 1
+        patch < "$FSBL_JTAG_PATCH"
+        popd
+
+        # apply patch to fsbl_qspi
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_qspi_$PLATFORM/src/" || return 1
+        patch < "$FSBL_QSPI_PATCH"
+        popd
+
+        # apply patch to fsbl_flash
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_flash_$PLATFORM/src/" || return 1
+        patch < "$FSBL_FLASH_PATCH"
+        popd
+
+        xsct "$SCRIPT_FSBL_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "$PLATFORM"
+
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_jtag_$PLATFORM/Release/fsbl_jtag_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_qspi_$PLATFORM/Release/fsbl_qspi_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_flash_$PLATFORM/Release/fsbl_flash_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/"
+        ;;
       "ultrascale")
-        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/hw/psu_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
+        #cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/hw/psu_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
         cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
         cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
         cp "$UTILS_ROOT/utils/fsbl_flash_ultrascale.elf" "$PROJ_DIR/bootloader_export/fsbl/"
-        ;;
-      "zynq7000"|"zedboard"|"coraz7")
-        cp "$PROJ_DIR/bootloader_configuration/fsbl/"$PLATFORM"_platform/hw/ps7_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
-        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_standard_$PLATFORM/Release/fsbl_standard_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_$PLATFORM.elf"
-
-        pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_modified_$PLATFORM/src/" || return 1
-        patch < "$PATCH_FSBL"
-        popd
-        xsct "$FSBL_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "$PLATFORM"
-        cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_modified_$PLATFORM/Release/fsbl_modified_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_flash_$PLATFORM.elf"
         ;;
       *)
         log error "unsupported platform $PLATFORM" 1
@@ -152,6 +166,7 @@ case "$TYPE" in
     echo "Build of U-Boot finished!"
     ;;
   "all")
+    return 1
     # fsbl
     _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_fsbl_$PLATFORM.tcl"
     _ensure-exists file PATCH_FSBL "$UTILS_ROOT/utils/disable_ddr_use_always_jtag_zynq7000.patch"
