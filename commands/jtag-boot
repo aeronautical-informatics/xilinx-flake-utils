@@ -8,7 +8,9 @@ help()
 log usage "jtag-boot [Arguments]
 Arguments:    
     PROJ_DIR    project directory
-    ELF         application .elf file"    
+    ELF         application .elf file
+Options:
+    -b, --bootloader  BOOTLOADER pass u-boot if this is loaded"
 }
 
 if [[ $# -eq 0 ]]
@@ -21,6 +23,10 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
         help
+        ;;
+    -b|--bootloader)
+        BOOTLOADER=$2
+        shift 2
         ;;
     *)
         POSITIONAL+=($1)
@@ -57,14 +63,13 @@ case "$PLATFORM" in
 
   "ultrascale")
     _ensure-exists file PMUFW "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
-    _ensure-exists file FSBL "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
-    _ensure-exists file ZYNQMP_UTILS "$UTILS_ROOT/tcl-lib/jtag_boot/zynqmp_utils.tcl"    
+    _ensure-exists file FSBL "$PROJ_DIR/bootloader_export/fsbl/fsbl_jtag_ultrascale.elf"
     _ensure-exists file PSU "$PROJ_DIR/hardware_configuration/psu_init.tcl"
     
-    case "$ELF" in
-      "u-boot.elf")
-        _ensure-exists file ATF "$PROJ_DIR/bootloader_export/fsbl/bl31.elf"
-        _ensure-exists file SYS_DTB "$PROJ_DIR/bootloader_export/fsbl/system.dtb"
+    case "$BOOTLOADER" in
+      "u-boot")
+        _ensure-exists file ATF "$PROJ_DIR/bootloader_export/u-boot/bl31.elf"
+        _ensure-exists file SYS_DTB "$PROJ_DIR/bootloader_export/u-boot/system.dtb"
         _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init_u_boot.tcl"
         xsct "$SCRIPT" "$BITSTREAM" "$PMUFW" "$PSU" "$FSBL" "$SYS_DTB" "$ELF" "$ATF"
         ;;

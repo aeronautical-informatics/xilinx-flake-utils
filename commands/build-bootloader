@@ -59,9 +59,7 @@ case "$TYPE" in
   "fsbl")
     _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/vitis_fsbl_$PLATFORM.tcl"
     _ensure-exists file FSBL_JTAG_PATCH "$UTILS_ROOT/utils/fsbl_jtag_$PLATFORM.patch"
-    _ensure-exists file FSBL_QSPI_PATCH "$UTILS_ROOT/utils/fsbl_qspi_$PLATFORM.patch"
-    _ensure-exists file FSBL_FLASH_PATCH "$UTILS_ROOT/utils/fsbl_flash_$PLATFORM.patch"
-    _ensure-exists file SCRIPT_FSBL_MOD "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl" #TODO: add two remaining app projects --> build modified fsbl for all three
+    _ensure-exists file FSBL_QSPI_PATCH "$UTILS_ROOT/utils/fsbl_qspi_$PLATFORM.patch"        
 
     if [[ -d "$PROJ_DIR/bootloader_configuration/fsbl/" ]] || [[ -d "$PROJ_DIR/bootloader_export/fsbl/" ]]
     then
@@ -75,6 +73,8 @@ case "$TYPE" in
 
     case "$PLATFORM" in      
       "zynq7000"|"zedboard"|"coraz7")
+        _ensure-exists file FSBL_FLASH_PATCH "$UTILS_ROOT/utils/fsbl_flash_$PLATFORM.patch"
+        _ensure-exists file SCRIPT_FSBL_MOD "$UTILS_ROOT/tcl-lib/build_modified_fsbl.tcl"
         # apply patch to fsbl_jtag
         pushd "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_jtag_$PLATFORM/src/" || return 1
         patch < "$FSBL_JTAG_PATCH"
@@ -97,10 +97,51 @@ case "$TYPE" in
         cp "$PROJ_DIR/bootloader_configuration/fsbl/fsbl_flash_$PLATFORM/Release/fsbl_flash_$PLATFORM.elf" "$PROJ_DIR/bootloader_export/fsbl/"
         ;;
       "ultrascale")
-        #cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/hw/psu_init.tcl" "$PROJ_DIR/bootloader_export/fsbl/"
-        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_ultrascale.elf"
-        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_platform/export/ultrascale_platform/sw/ultrascale_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
-        cp "$UTILS_ROOT/utils/fsbl_flash_ultrascale.elf" "$PROJ_DIR/bootloader_export/fsbl/"
+        _ensure-exists file FSBL_MAIN_PATCH "$UTILS_ROOT/utils/fsbl_main_$PLATFORM.patch"
+        _ensure-exists file FSBL_FLASH_MAIN_PATCH "$UTILS_ROOT/utils/fsbl_flash_main_$PLATFORM.patch"
+        _ensure-exists file FSBL_FLASH_HANDOFF_PATCH "$UTILS_ROOT/utils/fsbl_flash_handoff_$PLATFORM.patch"
+        _ensure-exists file FSBL_FLASH_HW_PATCH "$UTILS_ROOT/utils/fsbl_flash_hw_$PLATFORM.patch"
+        _ensure-exists file FSBL_FLASH_INIT_PATCH "$UTILS_ROOT/utils/fsbl_flash_init_$PLATFORM.patch"
+        _ensure-exists file SCRIPT_PLATFORM_MOD "$UTILS_ROOT/tcl-lib/build_modified_platform.tcl"
+        
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_platform/export/ultrascale_fsbl_platform/sw/ultrascale_fsbl_platform/boot/pmufw.elf" "$PROJ_DIR/bootloader_export/fsbl/pmufw_ultrascale.elf"
+
+        # TODO: Different platform project for different bootloader types
+        #       --> ultrascale_fsbl_jtag/qspi_platform , ultrascale_fsbl_flash_platform
+        #       --> maybe new patches if this still not works
+
+        
+
+        # apply patch for fsbl_jtag
+        echo "apply patch for fsbl_jtag"
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_platform/zynqmp_fsbl/" || return 1
+        patch < "$FSBL_MAIN_PATCH"
+        patch < "$FSBL_JTAG_PATCH"
+        popd
+        xsct "$SCRIPT_PLATFORM_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "ultrascale_fsbl_platform"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_platform/export/ultrascale_fsbl_platform/sw/ultrascale_fsbl_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_jtag_ultrascale.elf"
+        
+        # apply patch for fsbl_qspi
+        echo "apply patch for fsbl_qspi"
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_platform/zynqmp_fsbl/" || return 1
+        #patch < "$FSBL_MAIN_PATCH"
+        patch < "$FSBL_QSPI_PATCH"
+        popd
+        xsct "$SCRIPT_PLATFORM_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "ultrascale_fsbl_platform"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_platform/export/ultrascale_fsbl_platform/sw/ultrascale_fsbl_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_qspi_ultrascale.elf"
+        
+        
+
+        # apply patch for fsbl_flash
+        echo "apply patch for fsbl_flash"
+        pushd "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_flash_platform/zynqmp_fsbl/" || return 1
+        patch < "$FSBL_FLASH_MAIN_PATCH"
+        patch < "$FSBL_FLASH_HANDOFF_PATCH"
+        patch < "$FSBL_FLASH_HW_PATCH"
+        patch < "$FSBL_FLASH_INIT_PATCH"
+        popd
+        xsct "$SCRIPT_PLATFORM_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "ultrascale_fsbl_flash_platform"
+        cp "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_flash_platform/export/ultrascale_fsbl_flash_platform/sw/ultrascale_fsbl_flash_platform/boot/fsbl.elf" "$PROJ_DIR/bootloader_export/fsbl/fsbl_flash_ultrascale.elf"
         ;;
       *)
         log error "unsupported platform $PLATFORM" 1
@@ -109,8 +150,8 @@ case "$TYPE" in
     echo "Build of FSBL finished!"
     ;;
   "u-boot")
-    _set_petalinux_env "$PETALINUX_PATH"
-    _ensure-exists file PATCH_UBOOT_PROJ "$UTILS_ROOT/utils/project_mods.patch"    
+    #_set_petalinux_env "$PETALINUX_PATH"
+        
 
     if [[ -d "$PROJ_DIR/bootloader_configuration/u-boot/" ]] || [[ -d "$PROJ_DIR/bootloader_export/u-boot/" ]]
     then
@@ -122,6 +163,7 @@ case "$TYPE" in
 
     case "$PLATFORM" in
       "zynq7000")
+        _ensure-exists file PATCH_UBOOT_PROJ "$UTILS_ROOT/utils/project_mods_$PLATFORM.patch"
         pushd "$PROJ_DIR/bootloader_configuration/u-boot/" || return 1
         petalinux-create --type project --template zynq --name u_boot_$PLATFORM
         popd
@@ -158,6 +200,24 @@ case "$TYPE" in
         popd
 
         cp "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/images/linux/u-boot.elf" "$PROJ_DIR/bootloader_export/u-boot/"
+        ;;
+      "ultrascale")
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/" || return 1
+        petalinux-create --type project --template zynqMP --name u_boot_$PLATFORM
+        popd
+        cp "$XSA" "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/"
+
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/" || return 1
+        petalinux-config --get-hw-description --silentconfig
+        popd
+
+        pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/" || return 1
+        petalinux-build -c u-boot
+        popd
+
+        cp "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/images/linux/u-boot.elf" "$PROJ_DIR/bootloader_export/u-boot/"
+        cp "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/images/linux/bl31.elf" "$PROJ_DIR/bootloader_export/u-boot/"
+        cp "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/images/linux/system.dtb" "$PROJ_DIR/bootloader_export/u-boot/"
         ;;
       *)
         log error "U-Boot generation for $PLATFORM is not supported." 1

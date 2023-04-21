@@ -1,0 +1,12 @@
+--- ultrascale_platform/zynqmp_fsbl/xfsbl_handoff.c.original	2023-04-14 16:04:19.630414161 +0200
++++ ultrascale_platform/zynqmp_fsbl/xfsbl_handoff.c	2023-04-14 16:58:33.287088522 +0200
+@@ -777,7 +777,8 @@
+ 	 * if JTAG bootmode, be in while loop as of now
+ 	 * Check if Process can be parked in HALT state
+ 	 */
+-	if (FsblInstancePtr->PrimaryBootDevice ==
++	//if (FsblInstancePtr->PrimaryBootDevice ==
++	if (XFSBL_JTAG_BOOT_MODE ==
+ 			XFSBL_JTAG_BOOT_MODE)
+ 	{
+ 		Status = XFsbl_PLCheckForDone();

@@ -1,0 +1,11 @@
+--- ultrascale_platform/zynqmp_fsbl/xfsbl_hw.h.original	2023-04-14 16:04:19.630414161 +0200
++++ ultrascale_platform/zynqmp_fsbl/xfsbl_hw.h	2023-04-14 16:55:22.610110809 +0200
+@@ -907,7 +907,7 @@
+ 
+ #if defined(XPAR_PSU_DDR_0_S_AXI_BASEADDR) 	\
+ 		|| defined(XPAR_PSU_R5_DDR_0_S_AXI_BASEADDR)
+-#define XFSBL_PS_DDR
++ //#define XFSBL_PS_DDR
+ #endif
+ 
+ #define XFSBL_PS_DDR_START_ADDRESS		(0x0U)
