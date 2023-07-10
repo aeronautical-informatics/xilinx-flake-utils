@@ -149,7 +149,7 @@
       in
       rec {
         lib = {
-          inherit build-xilinx-toolchain;
+          inherit build-xilinx-toolchain genFhs;
         };
 
         packages = {
