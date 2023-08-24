@@ -7,42 +7,17 @@ if { $argc != 7 } {
 }
 
 set bit_file [lindex $argv 0]
-#set xsa_file [lindex $argv 1]
 set pmufw_file [lindex $argv 1]
 set psu_file [lindex $argv 2]
 set fsbl_file [lindex $argv 3]
 set sys_dtb_file [lindex $argv 4]
 set elf_file [lindex $argv 5]
-set atf_file [lindex $argv 6]
-
-#set zynqmp_utils [lindex $argv 4]
-
-
-
-
-
-#source $zynqmp_utils
 
 connect -url tcp:127.0.0.1:3121
-
-#set jtag_id [dict get [lindex [ jtag targets -filter {level == 0} -target-properties] 0] name]
-
-#if { ($jtag_id == "JTAG-ONB4 2516330067ABA") || ($jtag_id == "JTAG-ONB4 2516330067ACA") } {
-#	puts "Set bootmode to JTAG"
-#	targets -set -nocase -filter {name =~ "*PSU*"}
-#	stop
-#	mwr 0xff5e0200 0x0100
-#	rst -system
-#}
 
 # reset processor
 targets -set -nocase -filter {name =~ "*PSU*"}
 rst
-
-# set bootmode to 'JTAG'
-#puts "Set bootmode to JTAG"
-#mwr 0xff5e0200 0x0100
-#rst -system
 
 # configure FPGA
 targets -set -nocase -filter {name =~ "*PS TAP*"}

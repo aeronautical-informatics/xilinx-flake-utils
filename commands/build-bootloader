@@ -70,7 +70,7 @@ case "$TYPE" in
     _mkdir-if-missing "$PROJ_DIR/bootloader_export/fsbl/"
 
     xsct "$SCRIPT" "$PROJ_DIR/bootloader_configuration/fsbl" "$XSA"
-
+    exit 1
     case "$PLATFORM" in      
       "zynq7000"|"zedboard"|"coraz7")
         _ensure-exists file FSBL_FLASH_PATCH "$UTILS_ROOT/utils/fsbl_flash_$PLATFORM.patch"

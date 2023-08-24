@@ -81,7 +81,14 @@ cp "$UTILS_ROOT/templates/.gitignore" "$PROJ_DIR/$PROJ_NAME"
 echo -e "# README for the '$PROJ_NAME' FPGA project\n" > "$PROJ_DIR/$PROJ_NAME/README.md"
 
 echo -e "platform=$PLATFORM" > "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "soc_name=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "soc_config=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "soc_serial_number=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "carrier=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "carrier_name=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "carrier_serial_number=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "carrier_mac=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "carrier_ip=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "template=$TEMPLATE" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 
 case "$PLATFORM" in 
@@ -99,6 +106,16 @@ case "$PLATFORM" in
     ;;
   "zedboard"|"coraz7")
     cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/"$PLATFORM"_constraints.xdc"
+    ;;
+esac
+
+case "$PLATFORM" in 
+  #"zynq7000"
+    
+   # ;;
+  "ultrascale")
+    cp "$CONST_FCC" "$PROJ_DIR/$PROJ_NAME/constr/fcc_constraints.xdc"
+    cp "$CONST_DEV" "$PROJ_DIR/$PROJ_NAME/constr/devboard_constraints.xdc"
     ;;
 esac
 
