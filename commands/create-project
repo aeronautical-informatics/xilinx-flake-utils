@@ -12,7 +12,7 @@ Arguments:
     PROJ_NAME   project name
     
 Options:   
-    -t, --template TEMPLATE    lane-commanding, lane-monitoring"
+    -t, --template TEMPLATE    commanding, monitoring"
 }
 
 if [[ $# -eq 0 ]]
@@ -51,21 +51,21 @@ PROJ_NAME="$3"
 case "$PLATFORM" in
   "zynq7000"|"ultrascale")
     case "$TEMPLATE" in
-      "lane-commanding"|"lane-monitoring")
-        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_$TEMPLATE.tcl"
+      "commanding"|"monitoring")
+        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_"$TEMPLATE"_template.tcl"
         _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/"$TEMPLATE"_led_driver_template.vhd"
         _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/fcc_"$TEMPLATE"_constraints_template.xdc"
         _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/devboard_"$TEMPLATE"_constraints_template.xdc"
         ;;
       *)
-        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/$PLATFORM.tcl"
+        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_template.tcl"
         _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/constraints_template.xdc"
         _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/constraints_template.xdc"
         ;;
     esac
     ;;
   "zedboard"|"coraz7")
-    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/$PLATFORM.tcl"
+    _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_template.tcl"
     _ensure-exists file CONST "$UTILS_ROOT/templates/constraints_template.xdc"
     ;;
   *)
