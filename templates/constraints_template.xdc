@@ -1,4 +1,4 @@
-# constraints file
+# %carrier constraints file
 
 #set_property PACKAGE_PIN J6 [get_ports signal_1]
 #set_property PACKAGE_PIN J7 [get_ports signal_2]
