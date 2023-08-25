@@ -67,7 +67,6 @@ case "$PLATFORM" in
         ;;
 esac
 
-#echo -e "carrier=$CARRIER" >> "$PROJ_DIR/project.cfg"
 sed -i "2s/.*/"carrier=$CARRIER"/" "$PROJ_CFG"
 
 vivado -nolog -nojournal -mode batch \
