@@ -1,10 +1,14 @@
---- bootloader_configuration/fsbl/ultrascale_fsbl_platform/zynqmp_fsbl/xfsbl_initialization.c.original	2023-04-21 14:33:48.221396134 +0200
-+++ bootloader_configuration/fsbl/ultrascale_fsbl_platform/zynqmp_fsbl/xfsbl_initialization.c	2023-04-21 14:34:04.401123808 +0200
-@@ -842,7 +842,7 @@
- 	//BootMode = XFsbl_In32(CRL_APB_BOOT_MODE_USER) &
- 	//		CRL_APB_BOOT_MODE_USER_BOOT_MODE_MASK;
- 	
--	BootMode = XFSBL_JTAG_BOOT_MODE;
+--- Devboard_Configuration/bootloader_configuration/fsbl/ultrascale_fsbl_qspi_platform/zynqmp_fsbl/xfsbl_initialization.c.original	2023-09-07 11:01:07.264443906 +0200
++++ Devboard_Configuration/bootloader_configuration/fsbl/ultrascale_fsbl_qspi_platform/zynqmp_fsbl/xfsbl_initialization.c	2023-09-07 11:02:10.999985108 +0200
+@@ -839,8 +839,10 @@
+ 	/**
+ 	 * Read Boot Mode register and update the value
+ 	 */
+-	BootMode = XFsbl_In32(CRL_APB_BOOT_MODE_USER) &
+-			CRL_APB_BOOT_MODE_USER_BOOT_MODE_MASK;
++	//BootMode = XFsbl_In32(CRL_APB_BOOT_MODE_USER) &
++			//CRL_APB_BOOT_MODE_USER_BOOT_MODE_MASK;
++
 +	BootMode = XFSBL_QSPI32_BOOT_MODE;
  
  	FsblInstancePtr->PrimaryBootDevice = BootMode;

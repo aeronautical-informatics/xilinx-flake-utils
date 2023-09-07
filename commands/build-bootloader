@@ -118,7 +118,6 @@ case "$TYPE" in
         # apply patch for fsbl_qspi
         echo "apply patch for fsbl_qspi"
         pushd "$PROJ_DIR/bootloader_configuration/fsbl/ultrascale_fsbl_qspi_platform/zynqmp_fsbl/" || return 1
-        #patch < "$FSBL_MAIN_PATCH"
         patch < "$FSBL_QSPI_PATCH"
         popd
         xsct "$SCRIPT_PLATFORM_MOD" "$PROJ_DIR/bootloader_configuration/fsbl" "ultrascale_fsbl_qspi_platform"
@@ -170,7 +169,7 @@ case "$TYPE" in
         popd
 
         case "$TEMPLATE" in
-          "lane-commanding"|"lane-monitoring")
+          "commanding"|"monitoring")
             _ensure-exists file PATCH_UBOOT_LAB_LANE "$UTILS_ROOT/utils/lab_setup_mods_lane.patch"
             pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/project-spec/meta-user/recipes-bsp/u-boot/files/" || return 1
             patch < "$PATCH_UBOOT_LAB_LANE"
@@ -285,7 +284,7 @@ case "$TYPE" in
         popd
 
         case "$TEMPLATE" in
-          "lane-commanding"|"lane-monitoring")
+          "commanding"|"monitoring")
             _ensure-exists file PATCH_UBOOT_LAB_LANE "$UTILS_ROOT/utils/lab_setup_mods_lane.patch"
             pushd "$PROJ_DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/project-spec/meta-user/recipes-bsp/u-boot/files/" || return 1
             patch < "$PATCH_UBOOT_LAB_LANE"
