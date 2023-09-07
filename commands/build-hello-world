@@ -47,7 +47,7 @@ PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
 CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 _ensure-exists file HELLO_WORLD_CREATE "$UTILS_ROOT/tcl-lib/vitis_hello_world_$PLATFORM.tcl"
 _ensure-exists file HELLO_WORLD_BUILD "$UTILS_ROOT/tcl-lib/vitis_build_hello_world.tcl"
-_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
+_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw.xsa"
 
 if [[ -d "$PROJ_DIR/application_configuration" ]] || [[ -d "$PROJ_DIR/application_export" ]]
 then

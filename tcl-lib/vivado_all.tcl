@@ -40,8 +40,8 @@ wait_on_run impl_automated -quiet
 
 # run generate_bitstream
 open_impl_design impl_automated
-write_bitstream -force "$out_dir/${platform}_bitstream_export.bit"
+write_bitstream -force "$out_dir/${platform}_bitstream.bit"
 
 # run export_hardware
 open_impl_design impl_automated
-write_hw_platform -force -fixed -include_bit -file "$out_dir/${platform}_hw_export.xsa"
+write_hw_platform -force -fixed -include_bit -file "$out_dir/${platform}_hw.xsa"

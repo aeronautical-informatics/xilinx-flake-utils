@@ -43,7 +43,7 @@ PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
 CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 
 _ensure-exists file FSBL_STD "$PROJ_DIR/bootloader_export/fsbl/fsbl_$PLATFORM.elf"
-_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/"$CARRIER"_bitstream_export.bit"
+_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/"$CARRIER"_bitstream.bit"
 _ensure-exists file UBOOT "$PROJ_DIR/bootloader_export/u-boot/u-boot.elf"
 
 case "$PLATFORM" in 

@@ -53,7 +53,7 @@ PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
 CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 TEMPLATE=$(grep "template=" "$PROJ_CFG" | cut -d'=' -f2)
 
-_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
+_ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw.xsa"
 
 case "$TYPE" in 
   "fsbl")

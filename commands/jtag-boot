@@ -51,12 +51,12 @@ CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 
 
 
-_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/"$CARRIER"_bitstream_export.bit"
+_ensure-exists file BITSTREAM "$PROJ_DIR/hardware_configuration/"$CARRIER"_bitstream.bit"
 
 case "$PLATFORM" in
   "zynq7000"|"zedboard"|"coraz7")
     _ensure-exists file PS7 "$PROJ_DIR/hardware_configuration/ps7_init.tcl"
-    _ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw_export.xsa"
+    _ensure-exists file XSA "$PROJ_DIR/hardware_configuration/"$CARRIER"_hw.xsa"
     _ensure-exists file SCRIPT "$UTILS_ROOT/tcl-lib/jtag_boot/${PLATFORM}_init.tcl"
     xsct "$SCRIPT" "$PS7" "$BITSTREAM" "$XSA" "$ELF"
     ;;
