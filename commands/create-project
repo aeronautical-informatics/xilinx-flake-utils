@@ -12,7 +12,7 @@ Arguments:
     PROJ_NAME   project name
     
 Options:   
-    -t, --template TEMPLATE    commanding, monitoring"
+    -t, --template TEMPLATE    commanding, monitoring, wisdom"
 }
 
 if [[ $# -eq 0 ]]
@@ -52,10 +52,16 @@ case "$PLATFORM" in
   "zynq7000"|"ultrascale")
     case "$TEMPLATE" in
       "commanding"|"monitoring")
-        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_"$TEMPLATE"_template.tcl"
-        _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/"$TEMPLATE"_led_driver_template.vhd"
-        _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/fcc_"$TEMPLATE"_constraints_template.xdc"
-        _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/devboard_"$TEMPLATE"_constraints_template.xdc"
+        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$TEMPLATE"_"$PLATFORM"_template.tcl"
+        _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/led_driver_template.vhd"
+        _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/"$TEMPLATE"_fcc_constraints_template.xdc"
+        _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/"$TEMPLATE"_devboard_constraints_template.xdc"
+        ;;
+      "wisdom")
+        _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$TEMPLATE"_"$PLATFORM"_template.tcl"
+        _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/led_driver_template.vhd"
+        _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/"$TEMPLATE"_fcc_constraints_template.xdc"
+        _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/"$TEMPLATE"_devboard_constraints_template.xdc"
         ;;
       *)
         _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_template.tcl"
@@ -80,11 +86,12 @@ _mkdir-if-missing "$PROJ_DIR/$PROJ_NAME/"{workspace,constr,hdl,scripts}
 cp "$UTILS_ROOT/templates/.gitignore" "$PROJ_DIR/$PROJ_NAME"
 echo -e "# README for the '$PROJ_NAME' FPGA project\n" > "$PROJ_DIR/$PROJ_NAME/README.md"
 
-echo -e "platform=$PLATFORM" > "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "proj_name=$PROJ_NAME" > "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "platform=$PLATFORM" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "soc_name=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "soc_config=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "soc_serial_number=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "carrier=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "carrier=%carrier" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "carrier_name=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "carrier_serial_number=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
 echo -e "carrier_mac=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
@@ -95,16 +102,13 @@ case "$PLATFORM" in
   "zynq7000"|"ultrascale")
     cp "$CONST_FCC" "$PROJ_DIR/$PROJ_NAME/constr/fcc_constraints.xdc"
     cp "$CONST_DEV" "$PROJ_DIR/$PROJ_NAME/constr/devboard_constraints.xdc"
-    pushd "$PROJ_DIR/$PROJ_NAME/contr/" || return 1
+    pushd "$PROJ_DIR/$PROJ_NAME/constr/" || return 1
       sed -i "s/%carrier/fcc/g" "./fcc_constraints.xdc"
       sed -i "s/%carrier/devboard/g" "./devboard_constraints.xdc"
     popd
     case "$TEMPLATE" in
-      "lane-commanding")        
-        cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_Lane_Commanding.vhd"
-        ;;  
-      "lane-monitoring")
-        cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver_Lane_Monitoring.vhd"
+      "commanding"|"monitoring"|"wisdom")        
+        cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver.vhd"
         ;;  
     esac
     ;;

@@ -1,0 +1,78 @@
+# %carrier constraints file
+
+set_property PACKAGE_PIN AD12 [get_ports CAN_0_TX]
+set_property PACKAGE_PIN AC12 [get_ports CAN_0_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports CAN_0_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports CAN_0_RX]
+
+set_property PACKAGE_PIN AB13 [get_ports CAN_1_TX]
+set_property PACKAGE_PIN AA13 [get_ports CAN_1_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports CAN_1_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports CAN_1_RX]
+
+set_property PACKAGE_PIN A10 [get_ports UART_1_TX]
+set_property PACKAGE_PIN B13 [get_ports UART_1_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_1_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_1_RX]
+
+set_property PACKAGE_PIN B10 [get_ports UART_2_TX]
+set_property PACKAGE_PIN A13 [get_ports UART_2_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_2_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_2_RX]
+
+set_property PACKAGE_PIN AD15 [get_ports UART_3_TX]
+set_property PACKAGE_PIN AE12 [get_ports UART_3_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_3_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_3_RX]
+
+set_property PACKAGE_PIN AC13 [get_ports UART_4_TX]
+set_property PACKAGE_PIN AF13 [get_ports UART_4_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_4_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_4_RX]
+
+set_property PACKAGE_PIN B11 [get_ports UART_5_TX]
+set_property PACKAGE_PIN A12 [get_ports UART_5_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_5_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_5_RX]
+
+set_property PACKAGE_PIN J11 [get_ports UART_6_TX]
+set_property PACKAGE_PIN A11 [get_ports UART_6_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_6_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_6_RX]
+
+set_property PACKAGE_PIN AB10 [get_ports UART_7_TX]
+set_property PACKAGE_PIN AF10 [get_ports UART_7_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_7_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_7_RX]
+
+set_property PACKAGE_PIN AA8 [get_ports UART_8_TX]
+set_property PACKAGE_PIN AD10 [get_ports UART_8_RX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_8_TX]
+set_property IOSTANDARD LVCMOS33 [get_ports UART_8_RX]
+
+set_property PACKAGE_PIN J2 [get_ports {Data_Enable[0]}]
+set_property PACKAGE_PIN K1 [get_ports {Data_Enable[1]}]
+set_property PACKAGE_PIN K2 [get_ports {Data_Enable[2]}]
+set_property PACKAGE_PIN L1 [get_ports {Data_Enable[3]}]
+set_property PACKAGE_PIN K8 [get_ports {Data_Enable[4]}]
+set_property PACKAGE_PIN P7 [get_ports {Data_Enable[5]}]
+set_property PACKAGE_PIN K7 [get_ports {Data_Enable[6]}]
+set_property PACKAGE_PIN P6 [get_ports {Data_Enable[7]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[1]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[2]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[3]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[4]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[5]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[6]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {Data_Enable[7]}]
+
+set_property PACKAGE_PIN L7 [get_ports LED_1_IN]
+set_property PACKAGE_PIN L6 [get_ports LED_1_OUT]
+set_property IOSTANDARD LVCMOS18 [get_ports LED_1_IN]
+set_property IOSTANDARD LVCMOS18 [get_ports LED_1_OUT]
+
+set_property PACKAGE_PIN R6 [get_ports LED_2_IN]
+set_property PACKAGE_PIN T6 [get_ports LED_2_OUT]
+set_property IOSTANDARD LVCMOS18 [get_ports LED_2_IN]
+set_property IOSTANDARD LVCMOS18 [get_ports LED_2_OUT]
