@@ -1271,27 +1271,27 @@ add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/fcc_constraints.xdc"
 add_files -fileset constrs_1 "$proj_dir/$proj_name/constr/devboard_constraints.xdc"
 #set_property target_constrs_file "$proj_dir/$proj_name/constr/${platform}_constraints.xdc" [current_fileset -constrset]
 
-# add LED_Driver_Lane_Commanding.vhd file to project
-add_files -norecurse "$proj_dir/$proj_name/hdl/LED_Driver_Lane_Commanding.vhd"
+# add LED_Driver.vhd file to project
+add_files -norecurse "$proj_dir/$proj_name/hdl/LED_Driver.vhd"
 update_compile_order -fileset sources_1
 
 # open block design
 open_bd_design "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"
 
 # create block design cell
-create_bd_cell -type module -reference LED_Driver_Lane_Commanding LED_Driver_Lane_Commanding
+create_bd_cell -type module -reference LED_Driver LED_Driver
 
 # create ports
 startgroup
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Commanding/LED11_i]
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Commanding/LED11_o]
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Commanding/LED12_i]
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Commanding/LED12_o]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_1_i]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_1_o]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_2_i]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_2_o]
 endgroup
-set_property name LED11_IN [get_bd_ports LED11_i_0]
-set_property name LED11_OUT [get_bd_ports LED11_o_0]
-set_property name LED12_IN [get_bd_ports LED12_i_0]
-set_property name LED12_OUT [get_bd_ports LED12_o_0]
+set_property name LED_1_IN [get_bd_ports LED_1_i_0]
+set_property name LED_1_OUT [get_bd_ports LED_1_o_0]
+set_property name LED_2_IN [get_bd_ports LED_2_i_0]
+set_property name LED_2_OUT [get_bd_ports LED_2_o_0]
 
 # save block design
 save_bd_design

@@ -22,19 +22,19 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity LED_Driver_Lane_Monitoring is
+entity LED_Driver is
     Port    (
-                LED21_i : in    std_logic;
-                LED21_o : out   std_logic   := '0';
-                LED22_i : in    std_logic;
-                LED22_o : out   std_logic   := '0'
+                LED_1_i : in    std_logic;
+                LED_1_o : out   std_logic   := '0';
+                LED_2_i : in    std_logic;
+                LED_2_o : out   std_logic   := '0'
             );
-end LED_Driver_Lane_Monitoring;
+end LED_Driver;
 
-architecture Behavioral of LED_Driver_Lane_Monitoring is
+architecture Behavioral of LED_Driver is
 begin
     
-    LED21_o <= LED21_i;
-    LED22_o <= LED22_i;
+    LED_1_o <= LED_1_i;
+    LED_2_o <= LED_2_i;
 
 end Behavioral;

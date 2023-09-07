@@ -1327,21 +1327,20 @@ update_compile_order -fileset sources_1
 open_bd_design "$proj_dir/$proj_name/workspace/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd"
 
 # create block design cell
-create_bd_cell -type module -reference LED_Driver_Lane_Monitoring LED_Driver_Lane_Monitoring
+create_bd_cell -type module -reference LED_Driver LED_Driver
 
 # create ports
 startgroup
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Monitoring/LED21_i]
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Monitoring/LED21_o]
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Monitoring/LED22_i]
-make_bd_pins_external  [get_bd_pins LED_Driver_Lane_Monitoring/LED22_o]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_1_i]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_1_o]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_2_i]
+make_bd_pins_external  [get_bd_pins LED_Driver/LED_2_o]
 endgroup
-set_property name LED21_IN [get_bd_ports LED21_i_0]
-set_property name LED21_OUT [get_bd_ports LED21_o_0]
-set_property name LED22_IN [get_bd_ports LED22_i_0]
-set_property name LED22_OUT [get_bd_ports LED22_o_0]
+set_property name LED_1_IN [get_bd_ports LED_1_i_0]
+set_property name LED_1_OUT [get_bd_ports LED_1_o_0]
+set_property name LED_2_IN [get_bd_ports LED_2_i_0]
+set_property name LED_2_OUT [get_bd_ports LED_2_o_0]
 
 # save block design
 save_bd_design
 update_compile_order -fileset sources_1
-

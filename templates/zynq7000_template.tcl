@@ -8,15 +8,15 @@
 # IP Integrator Tcl commands easier.
 ################################################################
 
-if { $argc != 3 } {
+if { $argc != 2 } {
 	set prog_name [file tail $argv0]
-    puts "usage: $prog_name proj_dir proj_name soc"
+    puts "usage: $prog_name proj_dir proj_name"
 	exit 0
 }
 
 set proj_dir [lindex $argv 0]
 set proj_name [lindex $argv 1]
-set soc [lindex $argv 2]
+#set soc [lindex $argv 2]
 
 namespace eval _tcl {
 proc get_script_folder {} {
@@ -47,8 +47,8 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   #create_project $proj_name $proj_dir/$proj_name/workspace -part xc7z015clg485-2
-   create_project $proj_name $proj_dir/$proj_name/workspace -part "$soc"
+   create_project $proj_name $proj_dir/$proj_name/workspace -part xc7z015clg485-2
+   #create_project $proj_name $proj_dir/$proj_name/workspace -part "$soc"
    set_property target_language VHDL [current_project]
 }
 
