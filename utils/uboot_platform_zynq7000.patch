@@ -1,0 +1,104 @@
+--- ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h.original	2023-09-12 11:00:58.043446907 +0200
++++ ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h	2023-09-12 11:01:44.270708411 +0200
+@@ -34,3 +34,101 @@
+ #define CONFIG_SYS_I2C_MUX_ADDR                0x74
+ #define CONFIG_SYS_I2C_MUX_EEPROM_SEL          0x4
+ #endif
++
++/* FPGA Configuration */
++// I2C
++#define CONFIG_DM_I2C
++#define CONFIG_I2C_EEPROM
++#define CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET          0xFA
++#define CONFIG_SYS_I2C_EEPROM_ADDR              0x50
++#define CONFIG_SYS_I2C_EEPROM_BUS               0
++#define CONFIG_SYS_EEPROM_SIZE                  256
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS       0
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS   0
++#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN          1
++#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW     0
++
++// Boot Process
++#define CONFIG_BOOTDELAY                        1
++#define CONFIG_USE_BOOTCOMMAND
++#define CONFIG_BOOTCOMMAND                      "echo Flag Status: Update=${updateFlag} Dev=${devFlag};"\
++												"if ${updateFlag}; "\
++													"then if dhcp && ping ${serverip} && tftpboot 0x01000000 /srv/tftp/bootscript.%project.%platform.%config.img; "\
++														"then if ${devFlag}; "\
++															"then source 0x01000000; "\
++															"else echo FCC Software Update Successful; "\
++															"fi; "\
++														"else if ${devFlag}; "\
++															"then sf probe; run boot_image; "\
++															"else echo FCC Software Update Failed; "\
++															"fi; "\
++														"fi; "\
++													"else sf probe; run boot_image; "\
++												"fi;"
++
++// Version string
++#define CONFIG_PREBOOT                          "echo; echo U-Boot for %project on %platform SoC with %config configuration; echo;"
++
++
++// Server ip presetting
++#undef CONFIG_SERVERIP
++
++// Allow autonegotiation to take longer
++#define PHY_ANEG_TIMEOUT                        15000
++
++// Additional environment variables may be appended here
++/* Extra U-Boot Env settings */
++#define CONFIG_EXTRA_ENV_SETTINGS \
++	SERIAL_MULTI \ 
++	CONSOLE_ARG \ 
++	PSSERIAL0 \ 
++	"nc=setenv stdout nc;setenv stdin nc;\0" \ 
++	"ethaddr=\0" \
++    "serverip=\0" \
++	"autoload=no\0" \ 
++	"sdbootdev=0\0" \ 
++	"clobstart=0x10000000\0" \ 
++	"netstart=0x10000000\0" \ 
++	"dtbnetstart=0x23fff000\0" \ 
++	"loadaddr=0x10000000\0" \ 
++	"bootsize=0x500000\0" \ 
++	"bootstart=0x0\0" \ 
++	"boot_img=BOOT.BIN\0" \ 
++	"load_boot=tftpboot ${clobstart} ${boot_img}\0" \ 
++	"update_boot=setenv img boot; setenv psize ${bootsize}; setenv installcmd \"install_boot\"; run load_boot test_img; setenv img; setenv psize; setenv installcmd\0" \ 
++	"install_boot=sf probe 0 && sf erase ${bootstart} ${bootsize} && " \ 
++		"sf write ${clobstart} ${bootstart} ${filesize}\0" \ 
++	"bootenvsize=0x20000\0" \ 
++	"bootenvstart=0x500000\0" \ 
++	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \ 
++	"jffs2_img=rootfs.jffs2\0" \ 
++	"load_jffs2=tftpboot ${clobstart} ${jffs2_img}\0" \ 
++	"update_jffs2=setenv img jffs2; setenv psize ${jffs2size}; setenv installcmd \"install_jffs2\"; run load_jffs2 test_img; setenv img; setenv psize; setenv installcmd\0" \ 
++	"install_jffs2=sf probe 0 && sf erase ${jffs2start} ${jffs2size} && " \  
++		"sf write ${clobstart} ${jffs2start} ${filesize}\0" \ 
++	"kernelsize=0xa80000\0" \ 
++	"kernelstart=0x520000\0" \ 
++	"kernel_img=image.ub\0" \ 
++	"load_kernel=tftpboot ${clobstart} ${kernel_img}\0" \ 
++	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel test_crc; setenv img; setenv psize; setenv installcmd\0" \ 
++	"install_kernel=sf probe 0 && sf erase ${kernelstart} ${kernelsize} && " \ 
++		"sf write ${clobstart} ${kernelstart} ${filesize}\0" \ 
++	"cp_kernel2ram=sf probe 0 && sf read ${netstart} ${kernelstart} ${kernelsize}\0" \ 
++	"dtb_img=system.dtb\0" \ 
++	"load_dtb=tftpboot ${clobstart} ${dtb_img}\0" \ 
++	"update_dtb=setenv img dtb; setenv psize ${dtbsize}; setenv installcmd \"install_dtb\"; run load_dtb test_img; setenv img; setenv psize; setenv installcmd\0" \ 
++	"fault=echo ${img} image size is greater than allocated place - partition ${img} is NOT UPDATED\0" \ 
++	"test_crc=if imi ${clobstart}; then run test_img; else echo ${img} Bad CRC - ${img} is NOT UPDATED; fi\0" \ 
++	"test_img=setenv var \"if test ${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \ 
++	"netboot=tftpboot ${netstart} ${kernel_img} && bootm\0" \ 
++	"default_bootcmd=run cp_kernel2ram && bootm ${netstart}\0" \ 
++	"updateFlag=false\0" \
++	"updateFlag_switch=if ${updateFlag}; " \
++		"then setenv updateFlag false; setenv bootdelay 0; " \
++		"else setenv updateFlag true; setenv bootdelay 3; fi; " \
++		"saveenv; echo Set update flag to ${updateFlag}\0" \
++	"devFlag=false\0" \
++	"devFlag_switch=if ${devFlag}; " \
++		"then setenv devFlag false; else setenv devFlag true; fi; " \
++		"saveenv; echo Set dev flag to ${devFlag}\0" \
++""

@@ -7,9 +7,10 @@ help()
 {   
 log usage "create-project [Arguments] [Options]
 Arguments:    
-    PLATFORM    zynq7000, ultrascale, zedboard, coraz7
-    PROJ_DIR    project directory
-    PROJ_NAME   project name
+    PLATFORM    zynq7000, ultrascale, zedboard, coraz7    
+    NAME        name of hardware configuration project
+    PROJ        project where this hardware configuration will be used (lab, hap, wisdom, xandar, callisto)
+    DIR         directory where hardware configuration project shall be located
     
 Options:   
     -t, --template TEMPLATE    commanding, monitoring, wisdom"
@@ -39,14 +40,17 @@ done
 
 set -- "${POSITIONAL[@]}"
 
-if [[ $# -lt 3 ]]
+if [[ $# -lt 4 ]]
 then
   help
 fi
 
 PLATFORM="$1"
-PROJ_DIR="$2"
-PROJ_NAME="$3"
+NAME="$2"
+PROJ="$3"
+DIR="$4"
+
+CONFIG=""
 
 case "$PLATFORM" in
   "zynq7000"|"ultrascale")
@@ -56,23 +60,27 @@ case "$PLATFORM" in
         _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/led_driver_template.vhd"
         _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/"$TEMPLATE"_fcc_constraints_template.xdc"
         _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/"$TEMPLATE"_devboard_constraints_template.xdc"
+        CONFIG=$TEMPLATE
         ;;
       "wisdom")
         _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$TEMPLATE"_"$PLATFORM"_template.tcl"
         _ensure-exists file LED_DRIVER "$UTILS_ROOT/templates/led_driver_template.vhd"
         _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/"$TEMPLATE"_fcc_constraints_template.xdc"
         _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/"$TEMPLATE"_devboard_constraints_template.xdc"
+        CONFIG="standard"
         ;;
       *)
         _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_template.tcl"
         _ensure-exists file CONST_FCC "$UTILS_ROOT/templates/constraints_template.xdc"
         _ensure-exists file CONST_DEV "$UTILS_ROOT/templates/constraints_template.xdc"
+        CONFIG="standard"
         ;;
     esac
     ;;
   "zedboard"|"coraz7")
     _ensure-exists file SCRIPT "$UTILS_ROOT/templates/"$PLATFORM"_template.tcl"
     _ensure-exists file CONST "$UTILS_ROOT/templates/constraints_template.xdc"
+    CONFIG="standard"
     ;;
   *)
     log error "unsupported platform $PLATFORM" 1
@@ -80,53 +88,43 @@ case "$PLATFORM" in
 esac
     
 
-_ensure-exists-not "$PROJ_DIR/$PROJ_NAME" "Please delete existing project..."
-_mkdir-if-missing "$PROJ_DIR/$PROJ_NAME/"{workspace,constr,hdl,scripts}
+_ensure-exists-not "$DIR/$NAME" "Please delete existing project..."
+_mkdir-if-missing "$DIR/$NAME/"{workspace,constr,hdl,scripts}
 
-cp "$UTILS_ROOT/templates/.gitignore" "$PROJ_DIR/$PROJ_NAME"
-echo -e "# README for the '$PROJ_NAME' FPGA project\n" > "$PROJ_DIR/$PROJ_NAME/README.md"
+cp "$UTILS_ROOT/templates/.gitignore" "$DIR/$NAME"
+echo -e "# README for the '$NAME' FPGA project\n" > "$DIR/$NAME/README.md"
 
-echo -e "proj_name=$PROJ_NAME" > "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "platform=$PLATFORM" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "soc_name=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "soc_config=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "soc_serial_number=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "carrier=%carrier" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "carrier_name=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "carrier_serial_number=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "carrier_mac=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "carrier_ip=" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
-echo -e "template=$TEMPLATE" >> "$PROJ_DIR/$PROJ_NAME/project.cfg"
+echo -e "project=" > "$DIR/$NAME/project.cfg"
+echo -e "name=$NAME" >> "$DIR/$NAME/project.cfg"
+echo -e "platform=$PLATFORM" >> "$DIR/$NAME/project.cfg"
+echo -e "config=$CONFIG" >> "$DIR/$NAME/project.cfg"
+echo -e "soc=" >> "$DIR/$NAME/project.cfg"
+echo -e "soc_serial_number=" >> "$DIR/$NAME/project.cfg"
+echo -e "carrier=%carrier" >> "$DIR/$NAME/project.cfg"
+echo -e "carrier_name=" >> "$DIR/$NAME/project.cfg"
+echo -e "carrier_serial_number=" >> "$DIR/$NAME/project.cfg"
+echo -e "platform_mac=" >> "$DIR/$NAME/project.cfg"
+echo -e "platform_ip=" >> "$DIR/$NAME/project.cfg"
 
 case "$PLATFORM" in 
   "zynq7000"|"ultrascale")
-    cp "$CONST_FCC" "$PROJ_DIR/$PROJ_NAME/constr/fcc_constraints.xdc"
-    cp "$CONST_DEV" "$PROJ_DIR/$PROJ_NAME/constr/devboard_constraints.xdc"
-    pushd "$PROJ_DIR/$PROJ_NAME/constr/" || return 1
+    cp "$CONST_FCC" "$DIR/$NAME/constr/fcc_constraints.xdc"
+    cp "$CONST_DEV" "$DIR/$NAME/constr/devboard_constraints.xdc"
+    pushd "$DIR/$NAME/constr/" || return 1
       sed -i "s/%carrier/fcc/g" "./fcc_constraints.xdc"
       sed -i "s/%carrier/devboard/g" "./devboard_constraints.xdc"
     popd
     case "$TEMPLATE" in
       "commanding"|"monitoring"|"wisdom")        
-        cp "$LED_DRIVER" "$PROJ_DIR/$PROJ_NAME/hdl/LED_Driver.vhd"
+        cp "$LED_DRIVER" "$DIR/$NAME/hdl/LED_Driver.vhd"
         ;;  
     esac
     ;;
   "zedboard"|"coraz7")
-    cp "$CONST" "$PROJ_DIR/$PROJ_NAME/constr/"$PLATFORM"_constraints.xdc"
+    cp "$CONST" "$DIR/$NAME/constr/"$PLATFORM"_constraints.xdc"
     ;;
 esac
 
-#case "$PLATFORM" in 
-  #"zynq7000"
-    
-   # ;;
-#  "ultrascale")
-#    cp "$CONST_FCC" "$PROJ_DIR/$PROJ_NAME/constr/fcc_constraints.xdc"
-#    cp "$CONST_DEV" "$PROJ_DIR/$PROJ_NAME/constr/devboard_constraints.xdc"
-#    ;;
-#esac
+_update-wrapper "$DIR" "$NAME"
 
-_update-wrapper "$PROJ_DIR" "$PROJ_NAME"
-
-vivado -nolog -nojournal -mode batch -source "$SCRIPT" -tclargs "$PROJ_DIR" "$PROJ_NAME"
+vivado -nolog -nojournal -mode batch -source "$SCRIPT" -tclargs "$DIR" "$NAME"

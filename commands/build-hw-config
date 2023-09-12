@@ -7,7 +7,7 @@ help()
 {   
 log usage "build-hw-config [Arguments] [Options]
 Arguments:        
-    PROJ_DIR    project directory
+    DIR         directory of hardware configuration project
 
 Options:   
     -c, --carrier CARRIER    devboard, fcc"
@@ -37,12 +37,12 @@ done
 
 set -- "${POSITIONAL[@]}"
 
-_ensure-exists dir PROJ_DIR "$1"
-_ensure-exists file PROJ_FILE "$PROJ_DIR/workspace/"*.xpr
-_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
-_mkdir-if-missing "$PROJ_DIR/hardware_configuration"
+_ensure-exists dir DIR "$1"
+_ensure-exists file PROJ_FILE "$DIR/workspace/"*.xpr
+_ensure-exists file PROJ_CFG "$DIR/project.cfg"
+_mkdir-if-missing "$DIR/hardware_configuration"
 
-PROJ_NAME=$(grep "proj_name=" "$PROJ_CFG" | cut -d'=' -f2)
+NAME=$(grep "name=" "$PROJ_CFG" | cut -d'=' -f2)
 PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
 
 case "$PLATFORM" in 
@@ -68,29 +68,28 @@ case "$PLATFORM" in
         ;;
 esac
 
-pushd "$PROJ_DIR" || return 1
+pushd "$DIR" || return 1
     sed -i "s/%carrier/"$CARRIER"/g" "./project.cfg"
 popd
-#sed -i "2s/.*/"carrier=$CARRIER"/" "$PROJ_CFG"
 
 vivado -nolog -nojournal -mode batch \
     -source "$UTILS_ROOT/tcl-lib/vivado_all.tcl" "$PROJ_FILE" \
-    -tclargs "$PROJ_DIR" "$PROJ_DIR/hardware_configuration" "$CARRIER"
+    -tclargs "$DIR" "$DIR/hardware_configuration" "$CARRIER"
 
-unzip "${PROJ_DIR}/hardware_configuration/${CARRIER}_hw.xsa" -d "${PROJ_DIR}/hardware_configuration/extract_tmp"
+unzip "${DIR}/hardware_configuration/${CARRIER}_hw.xsa" -d "${DIR}/hardware_configuration/extract_tmp"
 
 case "$PLATFORM" in
     "zynq7000"|"zedboard"|"coraz7")
-        cp --force "${PROJ_DIR}/hardware_configuration/extract_tmp/ps7_init.tcl" "${PROJ_DIR}/hardware_configuration/"
+        cp --force "${DIR}/hardware_configuration/extract_tmp/ps7_init.tcl" "${DIR}/hardware_configuration/"
         # TODO: copy hwh file to "hardware_configuration" dir
         ;;
     "ultrascale")        
-        cp --force "${PROJ_DIR}/hardware_configuration/extract_tmp/psu_init.tcl" "${PROJ_DIR}/hardware_configuration/"        
-        cp --force "${PROJ_DIR}/workspace/"$PROJ_NAME".srcs/sources_1/bd/"$PROJ_NAME"_BD/hw_handoff/"$PROJ_NAME"_BD.hwh" "${PROJ_DIR}/hardware_configuration/"$CARRIER".hwh"
+        cp --force "${DIR}/hardware_configuration/extract_tmp/psu_init.tcl" "${DIR}/hardware_configuration/"        
+        cp --force "${DIR}/workspace/"$NAME".srcs/sources_1/bd/"$NAME"_BD/hw_handoff/"$NAME"_BD.hwh" "${DIR}/hardware_configuration/"$CARRIER".hwh"
         ;;
     *)
         log error "unsupported platform $PLATFORM" 1
         ;;
 esac
 
-rm -r "${PROJ_DIR}/hardware_configuration/extract_tmp"
+rm -r "${DIR}/hardware_configuration/extract_tmp"

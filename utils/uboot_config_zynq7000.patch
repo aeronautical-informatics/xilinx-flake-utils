@@ -1,5 +1,5 @@
---- ./project-spec/configs/config.original	2023-03-10 15:44:56.417861832 +0100
-+++ ./project-spec/configs/config	2023-03-10 15:46:44.887840087 +0100
+--- ./project-spec/configs/config.original	2023-09-12 10:55:52.476328445 +0200
++++ ./project-spec/configs/config	2023-09-12 10:57:13.747030118 +0200
 @@ -65,7 +65,7 @@
  CONFIG_SUBSYSTEM_ETHERNET_PS7_ETHERNET_0_SELECT=y
  # CONFIG_SUBSYSTEM_ETHERNET_MANUAL_SELECT is not set
@@ -9,12 +9,21 @@
  CONFIG_SUBSYSTEM_ETHERNET_PS7_ETHERNET_0_USE_DHCP=y
  
  #
-@@ -199,7 +199,7 @@
+@@ -199,14 +199,14 @@
  CONFIG_SUBSYSTEM_UIMAGE_NAME="image.ub"
  CONFIG_SUBSYSTEM_RFS_FORMATS="cpio cpio.gz cpio.gz.u-boot tar.gz jffs2"
  CONFIG_SUBSYSTEM_DTB_PADDING_SIZE=0x1000
 -CONFIG_SUBSYSTEM_COPY_TO_TFTPBOOT=y
 +CONFIG_SUBSYSTEM_COPY_TO_TFTPBOOT=n
  CONFIG_SUBSYSTEM_TFTPBOOT_DIR="/tftpboot"
+ 
+ #
+ # Firmware Version Configuration
+ #
+-CONFIG_SUBSYSTEM_HOSTNAME="u_boot_zynq7000"
+-CONFIG_SUBSYSTEM_PRODUCT="u_boot_zynq7000"
++CONFIG_SUBSYSTEM_HOSTNAME="Zynq7000 SoC"
++CONFIG_SUBSYSTEM_PRODUCT="U-Boot Second Staage Bootloader (DLR modified)"
+ CONFIG_SUBSYSTEM_FW_VERSION="1.00"
  
  #
