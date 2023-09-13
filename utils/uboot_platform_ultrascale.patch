@@ -1,6 +1,6 @@
 --- ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h.original	2023-09-07 11:36:26.676383053 +0200
 +++ ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h	2023-09-08 13:45:21.627253576 +0200
-@@ -22,3 +22,85 @@
+@@ -22,3 +22,86 @@
  #undef CONFIG_DEBUG_UART
  #endif
  #endif
@@ -44,7 +44,8 @@
 +	PSSERIAL0 \ 
 +	"nc=setenv stdout nc;setenv stdin nc;\0" \
 +   "ethaddr=%mac_addr\0" \
-+   "serverip=\0" \
++   "ipaddr=%ip_addr\0" \
++   "serverip=%server_ip\0" \
 +	"autoload=no\0" \ 
 +	"sdbootdev=0\0" \ 
 +	"clobstart=0x10000000\0" \ 

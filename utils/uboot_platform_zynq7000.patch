@@ -1,6 +1,6 @@
 --- ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h.original	2023-09-12 17:37:03.630246416 +0200
 +++ ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h	2023-09-12 17:40:14.367305322 +0200
-@@ -34,3 +34,105 @@
+@@ -34,3 +34,106 @@
  #define CONFIG_SYS_I2C_MUX_ADDR                0x74
  #define CONFIG_SYS_I2C_MUX_EEPROM_SEL          0x4
  #endif
@@ -19,7 +19,7 @@
 +#define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW     0
 +
 +// Boot Process
-+#define CONFIG_BOOTDELAY                        1
++#define CONFIG_BOOTDELAY                        3
 +#define CONFIG_USE_BOOTCOMMAND
 +#define CONFIG_BOOTCOMMAND                      "echo Flag Status: Update=${updateFlag};"\
 +                                                "if ${updateFlag}; "\
@@ -58,7 +58,8 @@
 +	PSSERIAL0 \ 
 +	"nc=setenv stdout nc;setenv stdin nc;\0" \ 
 +	"ethaddr=%mac_addr\0" \
-+   "serverip=\0" \
++   "ipaddr=%ip_addr\0" \
++   "serverip=%server_ip\0" \
 +	"autoload=no\0" \ 
 +	"sdbootdev=0\0" \ 
 +	"clobstart=0x10000000\0" \ 
@@ -96,7 +97,7 @@
 +	"test_img=setenv var \"if test ${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \ 
 +	"netboot=tftpboot ${netstart} ${kernel_img} && bootm\0" \ 
 +	"default_bootcmd=run cp_kernel2ram && bootm ${netstart}\0" \ 
-+	"updateFlag=false\0" \
++	"updateFlag=true\0" \
 +	"updateFlag_switch=if ${updateFlag}; " \
 +		"then setenv updateFlag false; setenv bootdelay 0; " \
 +		"else setenv updateFlag true; setenv bootdelay 3; fi; " \
@@ -106,4 +107,3 @@
 +		"then setenv devFlag false; else setenv devFlag true; fi; " \
 +		"saveenv; echo Set dev flag to ${devFlag}\0" \
 +""
-\ No newline at end of file

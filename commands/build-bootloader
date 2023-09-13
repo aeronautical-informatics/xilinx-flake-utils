@@ -54,6 +54,8 @@ CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
 MAC_ADDR=$(grep "platform_mac=" "$PROJ_CFG" | cut -d'=' -f2)
 PROJECT=$(grep "project=" "$PROJ_CFG" | cut -d'=' -f2)
 CONFIG=$(grep "config=" "$PROJ_CFG" | cut -d'=' -f2)
+IP_ADDR=$(grep "platform_ip=" "$PROJ_CFG" | cut -d'=' -f2)
+SERVER_IP=$(grep "server_ip=" "$PROJ_CFG" | cut -d'=' -f2)
 
 _ensure-exists file XSA "$DIR/hardware_configuration/"$CARRIER"_hw.xsa"
 
@@ -187,6 +189,8 @@ case "$TYPE" in
             sed -i -e "s/%platform/$PLATFORM/g" "./platform-top.h"
             sed -i -e "s/%config/"$CONFIG"/g" "./platform-top.h"
             sed -i -e "s/%mac_addr/"$MAC_ADDR"/g" "./platform-top.h"
+            sed -i -e "s/%ip_addr/"$IP_ADDR"/g" "./platform-top.h"
+            sed -i -e "s/%server_ip/"$SERVER_IP"/g" "./platform-top.h"
             popd
             ;;
         esac

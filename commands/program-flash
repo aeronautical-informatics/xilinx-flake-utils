@@ -51,12 +51,11 @@ case "$PLATFORM" in
         program_flash -f "$IMAGE" -fsbl "$FSBL_FLASH" -flash_type qspi-x4-single -blank_check -verify -url tcp:localhost:3121
 
         echo 
-        echo "### Flash operation done ###"
-        echo "- power cycle the board, connect to the board console and stop autoboot"
-        echo "- board console: "env default -f -a""
-        echo "- board console: "setenv serverip "<"your-server-ip-address">"""
-        echo "- board console: "setenv updateFlag true""
-        echo "- board console: "saveenv""
+        echo "###-------------------Program Flash Operation Done-------------------------###"
+        echo "  - power cycle the board, connect to the board console and stop autoboot"
+        echo "  - board console: "env default -f -a""
+        echo "  - board console: "saveenv""
+        echo "###------------------------------------------------------------------------###"
         echo
         ;;
     *)
