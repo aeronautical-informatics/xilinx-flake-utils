@@ -1,6 +1,6 @@
---- ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h.original	2023-09-12 11:00:58.043446907 +0200
-+++ ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h	2023-09-12 11:01:44.270708411 +0200
-@@ -34,3 +34,101 @@
+--- ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h.original	2023-09-12 17:37:03.630246416 +0200
++++ ./project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h	2023-09-12 17:40:14.367305322 +0200
+@@ -34,3 +34,105 @@
  #define CONFIG_SYS_I2C_MUX_ADDR                0x74
  #define CONFIG_SYS_I2C_MUX_EEPROM_SEL          0x4
  #endif
@@ -21,20 +21,24 @@
 +// Boot Process
 +#define CONFIG_BOOTDELAY                        1
 +#define CONFIG_USE_BOOTCOMMAND
-+#define CONFIG_BOOTCOMMAND                      "echo Flag Status: Update=${updateFlag} Dev=${devFlag};"\
-+												"if ${updateFlag}; "\
-+													"then if dhcp && ping ${serverip} && tftpboot 0x01000000 /srv/tftp/bootscript.%project.%platform.%config.img; "\
-+														"then if ${devFlag}; "\
-+															"then source 0x01000000; "\
-+															"else echo FCC Software Update Successful; "\
-+															"fi; "\
-+														"else if ${devFlag}; "\
-+															"then sf probe; run boot_image; "\
-+															"else echo FCC Software Update Failed; "\
-+															"fi; "\
-+														"fi; "\
-+													"else sf probe; run boot_image; "\
-+												"fi;"
++#define CONFIG_BOOTCOMMAND                      "echo Flag Status: Update=${updateFlag};"\
++                                                "if ${updateFlag}; "\
++						                         "then "\
++                                                        "if dhcp && ping ${serverip} && tftpboot 0x01000000 /srv/tftp/bootscript.%project.%platform.%config.img; "\
++                                                        "then "\
++                                                                "source 0x01000000; "\
++                                                                "echo Software Update Successful; "\
++                                                        "else "\
++                                                                "echo Software Update Failed; "\
++                                                        "fi; "\
++                                                "else "\
++                                                        "if sf probe; run boot_image; "\
++                                                        "then "\
++                                                                "echo Software Boot from Flash Successfull; "\
++                                                        "else "\
++                                                                "echo Software Boot from Flash Failed; "\
++                                                        "fi; "\
++                                                "fi;"
 +
 +// Version string
 +#define CONFIG_PREBOOT                          "echo; echo U-Boot for %project on %platform SoC with %config configuration; echo;"
@@ -53,8 +57,8 @@
 +	CONSOLE_ARG \ 
 +	PSSERIAL0 \ 
 +	"nc=setenv stdout nc;setenv stdin nc;\0" \ 
-+	"ethaddr=\0" \
-+    "serverip=\0" \
++	"ethaddr=%mac_addr\0" \
++   "serverip=\0" \
 +	"autoload=no\0" \ 
 +	"sdbootdev=0\0" \ 
 +	"clobstart=0x10000000\0" \ 
@@ -102,3 +106,4 @@
 +		"then setenv devFlag false; else setenv devFlag true; fi; " \
 +		"saveenv; echo Set dev flag to ${devFlag}\0" \
 +""
+\ No newline at end of file

@@ -167,8 +167,8 @@ case "$TYPE" in
         
         pushd "$DIR/bootloader_configuration/u-boot/u_boot_$PLATFORM/project-spec/configs/" || return 1
         patch < "$UBOOT_CONFIG_PATCH"
-        sed -i -e "s/"%mac_addr"/"$MAC_ADDR"/g" "./config"
-        popd
+        #sed -i -e "s/"%mac_addr"/"$MAC_ADDR"/g" "./config"
+        popd        
 
         case "$CONFIG" in
           "commanding"|"monitoring")
@@ -186,6 +186,7 @@ case "$TYPE" in
             sed -i -e "s/%project/$PROJECT/g" "./platform-top.h"
             sed -i -e "s/%platform/$PLATFORM/g" "./platform-top.h"
             sed -i -e "s/%config/"$CONFIG"/g" "./platform-top.h"
+            sed -i -e "s/%mac_addr/"$MAC_ADDR"/g" "./platform-top.h"
             popd
             ;;
         esac

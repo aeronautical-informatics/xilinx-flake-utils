@@ -5,7 +5,7 @@
  #endif
  #endif
 +
-+// Booting
++// Boot Process
 +#define CONFIG_BOOTDELAY 3
 +#define CONFIG_USE_BOOTCOMMAND
 +#define CONFIG_BOOTCOMMAND                      "echo Flag Status: Update=${updateFlag};"\
@@ -43,6 +43,8 @@
 +	CONSOLE_ARG \ 
 +	PSSERIAL0 \ 
 +	"nc=setenv stdout nc;setenv stdin nc;\0" \
++   "ethaddr=%mac_addr\0" \
++   "serverip=\0" \
 +	"autoload=no\0" \ 
 +	"sdbootdev=0\0" \ 
 +	"clobstart=0x10000000\0" \ 
