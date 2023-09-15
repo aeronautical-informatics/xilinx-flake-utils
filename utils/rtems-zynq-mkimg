@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+UTILS_ROOT=$( cd "$(dirname -- "${BASH_SOURCE[0]}")"/.. && pwd )
+source "$UTILS_ROOT/commands/lib.sh"
+
+OBJCOPY_FOR_TARGET="$UTILS_ROOT"/utils/arm-rtems5-objcopy
+OBJCOPY="$OBJCOPY_FOR_TARGET"
+
+EXE_NAME=$1
+APP_NAME=$2
+
+START_ADDR=0x00104000
+ENTRY_ADDR=0x00104000
+
+${OBJCOPY} -R -S --strip-debug -O binary "$EXE_NAME" "$APP_NAME.bin" || exit 1
+cat "$APP_NAME.bin" | gzip -9 >"$APP_NAME.gz"
+mkimage \
+  -A arm -O rtems -T kernel -a $START_ADDR -e $ENTRY_ADDR -n "$APP_NAME" \
+  -d "$APP_NAME.gz" "$APP_NAME"
+
+rm "$APP_NAME.bin" "$APP_NAME.gz"

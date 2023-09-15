@@ -2,7 +2,7 @@ echo ========================
 echo ======== rtems =========
 echo ========================
 echo ------- settings -------
-setenv image_path /srv/tftp/hap/hap.commanding.img
+setenv image_path /srv/tftp/hap.commanding.img
 setenv fetch_image 'tftpboot ${loadaddr} ${image_path}'
 setenv boot_image 'bootm ${loadaddr}'
 

@@ -44,7 +44,7 @@
 +	PSSERIAL0 \ 
 +	"nc=setenv stdout nc;setenv stdin nc;\0" \
 +   "ethaddr=%mac_addr\0" \
-+   "ipaddr=%ip_addr\0" \
++   "ipaddr=\0" \
 +   "serverip=%server_ip\0" \
 +	"autoload=no\0" \ 
 +	"sdbootdev=0\0" \ 

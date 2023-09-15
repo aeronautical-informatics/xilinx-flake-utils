@@ -1,0 +1,11 @@
+echo ==================================================
+echo ======== rtems for %project on %platform =========
+echo ==================================================
+echo ------- settings -------
+setenv image_path /srv/tftp/%project.%platform.%config.img
+setenv fetch_image 'tftpboot ${loadaddr} ${image_path}'
+setenv boot_image 'bootm ${loadaddr}'
+
+echo ------- EXECUTION ------
+run fetch_image
+run boot_image

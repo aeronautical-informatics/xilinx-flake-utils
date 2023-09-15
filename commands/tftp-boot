@@ -7,8 +7,8 @@ help()
 {   
 log usage "tftp-boot [Arguments] [Options]
 Arguments: 
-    TYPE        application type (baremetal)
-    PROJ_DIR    project directory
+    TYPE        application type (baremetal, rtems, xng, pikeos, bootloader_update)
+    DIR         project directory
     APPLICATION application.elf image
 Options:
     --flash     write the application image into flash and enable boot from flash"
@@ -47,9 +47,79 @@ fi
 
 TYPE="$1"
 APPLICATION="$3"
-_ensure-exists dir PROJ_DIR "$2"
-_ensure-exists file PROJ_CFG "$PROJ_DIR/project.cfg"
+_ensure-exists dir DIR "$2"
+_ensure-exists file PROJ_CFG "$DIR/project.cfg"
 
+PROJECT=$(grep "project=" "$PROJ_CFG" | cut -d'=' -f2)
 PLATFORM=$(grep "platform=" "$PROJ_CFG" | cut -d'=' -f2)
+CONFIG=$(grep "config=" "$PROJ_CFG" | cut -d'=' -f2)
 CARRIER=$(grep "carrier=" "$PROJ_CFG" | cut -d'=' -f2)
-TEMPLATE=$(grep "template=" "$PROJ_CFG" | cut -d'=' -f2)
+
+if [[ ! -d /srv/tftp ]]
+then
+  mkdir -m 777 /srv/tftp
+fi
+
+case "$CONFIG" in
+  "commanding"|"monitoring")
+    log error "tftp-boot is currently not supported for projects with $CONFIG configuration" 1
+    ;;
+  "standard")
+    if [[ "$FLASH" == true ]]
+    then
+      log error "tftp-boot currently not supports flash operations" 1
+    else
+      _ensure-exists file BOOTSCRIPT ""$UTILS_ROOT"/bootscripts/"$TYPE"" 
+
+      cp "$BOOTSCRIPT" "/srv/tftp/"$TYPE"_tmp"
+
+      pushd "/srv/tftp/" || return 1
+      sed -i -e "s/%project/$PROJECT/g" "./"$TYPE"_tmp"
+      sed -i -e "s/%platform/$PLATFORM/g" "./"$TYPE"_tmp"
+      sed -i -e "s/%config/"$CONFIG"/g" "./"$TYPE"_tmp"
+      popd
+
+      BOOTSCRIPT_IMAGE="/srv/tftp/bootscript."$PROJECT"."$PLATFORM"."$CONFIG".img"
+
+      if [[ -f "$BOOTSCRIPT_IMAGE" ]]
+      then
+        rm "$BOOTSCRIPT_IMAGE"
+      fi
+
+      echo
+      echo "### Build Bootscript Image ###"
+      echo
+
+      mkimage -A arm -T script -C none -n "Script file for "$TYPE"" -d "/srv/tftp/"$TYPE"_tmp" "$BOOTSCRIPT_IMAGE"
+
+      chmod 666 "$BOOTSCRIPT_IMAGE"
+      rm "/srv/tftp/"$TYPE"_tmp"
+
+      echo
+      echo "### Build Software Image ###"
+      echo
+
+      case "$TYPE" in
+        "rtems")
+          SOFTWARE_IMAGE="/srv/tftp/"$PROJECT"."$PLATFORM"."$CONFIG".img"
+          "$UTILS_ROOT"/utils/rtems-zynq-mkimg "$APPLICATION" "$SOFTWARE_IMAGE"
+          ;;
+        "baremetal")
+          SOFTWARE_IMAGE="/srv/tftp/"$PROJECT"."$PLATFORM"."$CONFIG".elf"
+          cp "$APPLICATION" "$SOFTWARE_IMAGE"          
+          ;;
+        *)
+          log error "tftp-boot does not support type "$TYPE"" 1
+          ;;
+      esac
+
+    fi
+    ;;
+  *)
+    log error "tftp-boot is not supported for projects with $CONFIG configuration" 1
+    ;;
+esac
+
+chmod 666 "$SOFTWARE_IMAGE"
+
+echo "Now powercycle the board. It should boot the configured software automatically from the TFTP server."

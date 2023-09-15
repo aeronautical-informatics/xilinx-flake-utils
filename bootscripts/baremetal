@@ -1,11 +1,10 @@
-echo ========================
-echo ======== baremetal =========
-echo ========================
+echo ======================================================
+echo ======== baremetal for %project on %platform =========
+echo ======================================================
 echo ------- settings -------
-setenv image_path /srv/tftp/general/fcc.baremetal.elf
-setenv loadaddr 0x00100000
+setenv image_path /srv/tftp/%project.%platform.%config.elf
 setenv fetch_image 'tftpboot ${loadaddr} ${image_path}'
-setenv boot_image 'bootelf ${loadaddr}'
+setenv boot_image 'bootelf'
 
 echo ------- EXECUTION ------
 run fetch_image
