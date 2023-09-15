@@ -51,26 +51,7 @@ _ensure-exists file FSBL_FLASH "$DIR/bootloader_export/fsbl/fsbl_flash_$PLATFORM
 
 echo "Generate bootable image BOOT.bin"
 
-case "$PLATFORM" in 
-    "zynq7000")
-        if [[ -d "$DIR/boot_image/" ]]
-        then
-            rm --recursive --force -- "$DIR/boot_image/"
-        fi
-        _mkdir-if-missing "$DIR/boot_image/"
-        cp "$BIF_TMP" "$DIR/boot_image/boot_image.bif"
-        sed -i "s/%platform/"$PLATFORM"/g" "$DIR/boot_image/boot_image.bif"
-        sed -i "s/%carrier/"$CARRIER"/g" "$DIR/boot_image/boot_image.bif"
-
-        pushd "$DIR/boot_image/" || return 1
-        bootgen -arch zynq -image ./boot_image.bif -w -o BOOT.bin
-        popd
-        ;;
-    *)
-        log error "Boot Image generation for $PLATFORM is not supported." 1
-        ;;
-esac
-
+"$UTILS_ROOT"/commands/build-image "$DIR"
 _ensure-exists file IMAGE "$DIR/boot_image/BOOT.bin"
 
 echo "Store the Bootloader Image BOOT.bin in the flash memory"
