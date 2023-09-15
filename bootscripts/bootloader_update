@@ -9,7 +9,7 @@ echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 echo ------- settings -------
 setenv tmp_addr 0x08000000
 setenv ub_size 0x3E0000
-setenv img_dir /srv/tftp/hap/bootloader.commanding.bin
+setenv img_dir /srv/tftp/bootloader.%project.%platform.%config.bin
 
 
 echo ------- Download U-Boot image ------
@@ -44,15 +44,11 @@ cmp.b 0x0F000000 ${tmp_addr} ${img_size}
 echo ------- Updating Bootloader Done ------
 echo Resetting now will restart the update process again. Abort the upcoming autoboot to stop.
 echo This instance of U-Boot continues to run but it is the old version.
-echo Please reset, then load default environment variables and set serverip and ethernet/MAC address and reset again to complete the update.
+echo Please reset the board, then load default environment variables and save the environment and then reset the board again to complete the update.
 echo - `reset`/ powercycle the board
 echo - stop the upcoming autoboot
 echo - reset environment variables using `env default -f -a`
-echo - set the serverip variable using `setenv serverip <your-server-ip-address>`
-echo - set the ethernet/MAC address for the corresponding lane:
-echo     - commanding: `setenv ethaddr 02:fc:c0:0a:11:ce`
-echo     - monitoring: `setenv ethaddr 02:fc:c0:0c:a1:eb`
 echo - save the new environment variables `saveenv`
-echo See ubootUpdate.md for help.
-echo ------- Update the image to be loaded on the TFTP server using the hap-ctrl.py script ------
+echo - set the software to be laoded via TFTP
+echo - `reset`/ powercycle the board
 echo

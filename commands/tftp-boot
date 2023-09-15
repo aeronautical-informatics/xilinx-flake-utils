@@ -40,12 +40,16 @@ done
 
 set -- "${POSITIONAL[@]}"
 
-if [[ $# -lt 3 ]]
+TYPE="$1"
+
+if [[ $TYPE != "bootloader_update" ]]
 then
-  help
+  if [[ $# -lt 3 ]]
+  then
+    help
+  fi
 fi
 
-TYPE="$1"
 APPLICATION="$3"
 _ensure-exists dir DIR "$2"
 _ensure-exists file PROJ_CFG "$DIR/project.cfg"
@@ -108,6 +112,12 @@ case "$CONFIG" in
           SOFTWARE_IMAGE="/srv/tftp/"$PROJECT"."$PLATFORM"."$CONFIG".elf"
           cp "$APPLICATION" "$SOFTWARE_IMAGE"          
           ;;
+        "bootloader_update")
+          SOFTWARE_IMAGE="/srv/tftp/bootloader."$PROJECT"."$PLATFORM"."$CONFIG".bin"
+          "$UTILS_ROOT"/commands/build-image "$DIR"
+          _ensure-exists file IMAGE "$DIR/boot_image/BOOT.bin"
+          cp "$IMAGE" "$SOFTWARE_IMAGE"
+          ;;
         *)
           log error "tftp-boot does not support type "$TYPE"" 1
           ;;
@@ -122,4 +132,5 @@ esac
 
 chmod 666 "$SOFTWARE_IMAGE"
 
+echo
 echo "Now powercycle the board. It should boot the configured software automatically from the TFTP server."
