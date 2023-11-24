@@ -5,7 +5,6 @@
     flake-utils.url = "github:numtide/flake-utils";
     devshell.url = "github:numtide/devshell";
     devshell.inputs.nixpkgs.follows = "nixpkgs";
-    devshell.inputs.flake-utils.follows = "flake-utils";
   };
 
   outputs = { self, nixpkgs, flake-utils, ... } @ inputs:
@@ -16,7 +15,12 @@
           inherit system;
           overlays = [
             (self: super: { xilinx = xilinx-packages; })
-            inputs.devshell.overlay
+            inputs.devshell.overlays.default
+
+            # fix for the https://github.com/NixOS/nixpkgs/pull/42637 problem
+            (final: prev: {
+              requireFile = args: (prev.requireFile args).overrideAttrs (_: { allowSubstitutes = true; });
+            })
           ];
         };
 
@@ -65,7 +69,7 @@
             nettools
             unzip
           ];
-          multiPkgs = null;
+          multiPkgs = x: [ ];
         };
 
         # load known versions of Xilinx toolchains from the TOML
@@ -82,8 +86,11 @@
             nameLowercase = pkgs.lib.toLower name;
             fhsName = nameLowercase + "-fhs";
             toolchain-raw = pkgs.stdenv.mkDerivation rec {
-              inherit src version;
-              pname = nameLowercase + "-raw";
+              inherit src; # version;
+              #dontUnpack = true;
+              pname = "x"; # nameLowercase + "-raw";
+              name = "x";
+              version = "0";
               nativeBuildInputs = with pkgs; [ xorg.xorgserver (genFhs { }) ];
               dontStrip = true;
               dontPatchELF = true;
@@ -99,6 +106,14 @@
                 export DISPLAY=:1
                 Xvfb $DISPLAY &
                 xvfb_pid=$!
+
+                mkdir -p $out
+                chmod +rw $out
+
+                cat install_config.txt
+                xilinx-fhs -c 'ls -lah --directory $out'
+                xilinx-fhs -c 'ls -lah $out'
+
                 xilinx-fhs xsetup --agree XilinxEULA,3rdPartyEULA,WebTalkTerms \
                   --batch Install --config install_config.txt
                 kill $xvfb_pid
@@ -171,7 +186,6 @@
             pkgs.glow
             pkgs.python3
             pkgs.unzip
-            xilinx-packages.vitis-unified-software-platform-vitis_2019-2_1106_2127
           ];
           git.hooks = {
             enable = true;
