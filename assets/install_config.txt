@@ -3,7 +3,7 @@
 Edition=@edition@
 
 # Path where Xilinx software will be installed.
-Destination=@out@/
+Destination=/opt
 
 # Choose the Products/Devices the you would like to install.
 Modules=@products@

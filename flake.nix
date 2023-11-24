@@ -28,6 +28,8 @@
         # https://github.com/nix-community/nix-environments
         genFhs = { name ? "xilinx-fhs", runScript ? "bash", profile ? "" }: pkgs.buildFHSUserEnv {
           inherit name runScript profile;
+          # extraBwrapArgs = [ "--bind $out /c" ];
+
           targetPkgs = pkgs: with pkgs; [
             # runtime deps
             bash
@@ -69,7 +71,6 @@
             nettools
             unzip
           ];
-          multiPkgs = x: [ ];
         };
 
         # load known versions of Xilinx toolchains from the TOML
@@ -107,16 +108,18 @@
                 Xvfb $DISPLAY &
                 xvfb_pid=$!
 
-                mkdir -p $out
-                chmod +rw $out
+                # mkdir --parent -- $out/{bin,opt}
+                mkdir $out/
+                chmod -R 777 $out/
+                ls -ld $out
 
                 cat install_config.txt
-                xilinx-fhs -c 'ls -lah --directory $out'
-                xilinx-fhs -c 'ls -lah $out'
 
                 xilinx-fhs xsetup --agree XilinxEULA,3rdPartyEULA,WebTalkTerms \
-                  --batch Install --config install_config.txt
+                  --batch Install --config install_config.txt || true
                 kill $xvfb_pid
+
+                cat /build/.Xilinx/xinstall/xinstall_*.log
 
                 runHook postInstall
               '';
@@ -137,7 +140,7 @@
               done
             '';
           in
-          wrapper;
+          toolchain-raw;
 
         # enumerate all packages buildable from the known versions, built using
         # `build-xilinx-toolchain`

@@ -1,5 +1,13 @@
+# Get this by generating a template config using `xsetup -b ConfigGen`. The `xsetup` can be found in
+# the installation tar ball.
+#
+# Then simply use my excellent one-liner awk script to get a copy-and-pasteable string.
+# awk 'BEGIN { FS=",|:"} /^Modules=/ {sub("Modules=", ""); for (i=1; i<=(NF/2); i+=2) {j=i+1; if ($j == 0) {active = "true"} else {active = "false"} printf "products.\"%s\" = %s\n", $i, active} }' /home/$USER/.Xilinx/install_config.txt
+#
+# Caution: The `Xilinx_` prefix and the `tar.gz` suffix are skipped!
+
 ["Vivado_2019.2_1106_2127"]
-sha256 = "15hfkb51axczqmkjfmknwwmn8v36ss39wdaay14ajnwlnb7q2rxh"
+sha256 = "sha256-sGeBz7KUW6lI8Eo1nobWZmxkK+d2VidnxZ91FcqaDpY="
 editions = ["Vivado HL WebPACK", "Vivado HL Design Edition", "Vivado HL System Edition"] 
 products."Zynq UltraScale+ MPSoC" = true
 products."DocNav" = true
@@ -21,7 +29,7 @@ products."Virtex UltraScale+ HBM ES" = false
 products."Zynq UltraScale+ RFSoC ES" = false
 
 ["Vitis_2019.2_1106_2127"]
-sha256 = "14j6gbl31p3kw0mwgfg797fpmzacmvsvdh0zap93kpy7mvryhj47"
+sha256 = "sha256-h0jo867H3znSVR/AtvWuTP163Unnuccr4HPcMOh6RpI="
 editions = ["Vitis Unified Software Platform"] 
 products."Zynq UltraScale+ MPSoC" = true
 products."DocNav" = true
@@ -42,3 +50,23 @@ products."System Generator for DSP" = false
 products."Versal Prime Series ES1" = false
 products."Virtex UltraScale+ HBM ES" = false
 products."Zynq UltraScale+ RFSoC ES" = false
+
+["Unified_2023.1_0507_1903"]
+sha256 = "sha256-Kq7GwlDvdTP+X3+u1bjQUkcy7+7FNFnbOiIJXF87nDk="
+editions = ["Vitis Unified Software Platform"]
+products."Versal HBM Series" = false
+products."Versal Prime Series ES1" = true
+products."Virtex UltraScale+ 58G" = false
+products."Versal Prime Series" = false
+products."Install Devices for Kria SOMs and Starter Kits" = false
+products."Versal Premium Series ES1" = true
+products."Vitis IP Cache (Enable faster on-boarding for new users)" = true
+products."Versal Net Series ES1" = true
+products."Zynq-7000" = false
+products."Kintex UltraScale+" = false
+products."Artix UltraScale+" = false
+products."Spartan-7" = false
+products."Install devices for Alveo and edge acceleration platforms" = false
+products."Versal Premium Series" = false
+products."Versal AI Edge Series" = false
+products."Versal AI Core Series ES1" = true
