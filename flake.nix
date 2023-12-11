@@ -29,6 +29,7 @@
             bash
             coreutils
             dbus
+            gnumake
             procps
             which
 
@@ -131,7 +132,7 @@
             (version: { editions, products, sha256 }: builtins.map
               (edition: pkgs.lib.nameValuePair
                 (pkgs.lib.toLower (
-                  builtins.replaceStrings [ " " "." ] [ "-" "-" ] "${edition}-${version}"
+                  builtins.replaceStrings [ " " "." ] [ "-" "-" ] "${version}-${edition}"
                 ))
                 (build-xilinx-toolchain {
                   name = builtins.elemAt (pkgs.lib.splitString "_" version) 0;
@@ -171,7 +172,7 @@
             pkgs.glow
             pkgs.python3
             pkgs.unzip
-            xilinx-packages.vitis-unified-software-platform-vitis_2019-2_1106_2127
+            xilinx-packages.vitis_2019-2_1106_2127-vitis-unified-software-platform
           ];
           git.hooks = {
             enable = true;
