@@ -16,7 +16,7 @@
           inherit system;
           overlays = [
             (self: super: { xilinx = xilinx-packages; })
-            inputs.devshell.overlay
+            inputs.devshell.overlays.default
           ];
         };
 
