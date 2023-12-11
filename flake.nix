@@ -15,6 +15,10 @@
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
+            # https://github.com/NixOS/nixpkgs/pull/42637
+            (final: prev: {
+              requireFile = args: (prev.requireFile args).overrideAttrs (_: { allowSubstitutes = true; });
+            })
             (self: super: { xilinx = xilinx-packages; })
             inputs.devshell.overlays.default
           ];
