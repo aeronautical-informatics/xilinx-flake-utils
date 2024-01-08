@@ -20,7 +20,7 @@
               requireFile = args: (prev.requireFile args).overrideAttrs (_: { allowSubstitutes = true; });
             })
             (self: super: { xilinx = xilinx-packages; })
-            inputs.devshell.overlays.default
+            inputs.devshell.overlay
           ];
         };
 
